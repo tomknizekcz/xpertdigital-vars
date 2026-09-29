@@ -1,0 +1,2394 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>AI mapa VARS</title>
+<meta name="description" content="Personalizovaná AI mapa XpertDigital pro VARS BRNO a.s.: co za 3 měsíce udělá AI tým.">
+<meta property="og:title" content="AI mapa VARS">
+<meta property="og:description" content="Personalizovaná AI mapa XpertDigital pro VARS BRNO a.s.: co za 3 měsíce udělá AI tým.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='32' fill='%23FA2B2B'/%3E%3Cpath d='M19 17h8.5L32 24l4.5-7H45L36.5 32 45 47h-8.5L32 40l-4.5 7H19l8.5-15z' fill='white'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   XpertDigital · AI mapa — šablona (engine + vzhled)
+   Obsah klienta je v data/<klient>.js, tento soubor se nemění.
+   ============================================================ */
+:root{
+  --red:#FA2B2B; --red-ink:#D31414; --red-btn:#E52020; --red-on-dark:#FF6B6B;
+  --red-50:#FFF1F1; --red-100:#FFE1E1;
+  --ink:#232323; --text:#484848; --muted:#6B6B6B; --faint:#9A9A9A;
+  --line:#E2E2E2; --line-2:#EEEEEE;
+  --bg:#ECECEC; --dot:#D2D2D2; --panel:#FFFFFF; --panel-2:#F7F7F7;
+  --dark:#333333; --dark-2:#3D3D3D; --dark-3:#282828; --dark-line:#4B4B4B;
+  --on-dark:#FFFFFF; --on-dark-muted:#C2C2C2;
+  --green:#15805A; --green-50:#E6F5EE; --amber:#9A6200; --amber-50:#FFF3D9;
+  --r-xl:32px; --r-lg:24px; --r-md:16px; --r-sm:10px;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 10px 30px rgba(0,0,0,.07);
+  --font:'Archivo',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,'Liberation Mono',monospace;
+  --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
+}
+/* Záměrně jeden světlý vzhled podle webu XpertDigital; všechny barvy jsou nastavené explicitně. */
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:var(--font);color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow:hidden;font-size:16px}
+body.linear{overflow:auto;height:auto}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--red);outline-offset:3px;border-radius:6px}
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.display{font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;line-height:.9;color:var(--ink)}
+
+/* ---------- Top bar ---------- */
+.topbar{position:fixed;z-index:40;top:calc(12px + var(--sat));left:12px;right:12px;height:60px;display:flex;align-items:center;gap:20px;padding:0 10px 0 20px;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.brand{display:flex;align-items:center;flex:none}
+.brand svg{height:30px;width:auto;display:block}
+.tb-copy{display:flex;flex-direction:column;min-width:0;line-height:1.25;border-left:1px solid var(--line);padding-left:20px}
+.tb-copy strong{font-size:16px;color:var(--ink);font-weight:700}
+.tb-copy span{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn{display:inline-flex;align-items:center;gap:10px;border-radius:12px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap;transition:background .15s,transform .15s,box-shadow .15s}
+.btn-red{background:var(--red-btn);color:#fff;padding:12px 18px;box-shadow:0 6px 16px rgba(229,32,32,.28)}
+.btn-red:hover{background:#cc1818}
+.btn-ghost{border:1px solid var(--line);padding:11px 16px;background:#fff;color:var(--ink)}
+.btn-ghost:hover{border-color:var(--ink)}
+.topbar .btn-red{margin-left:auto}
+
+/* ---------- Floating controls ---------- */
+.fab{position:fixed;z-index:35;width:48px;height:48px;border-radius:14px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.08);color:var(--ink)}
+.fab:hover{border-color:var(--ink)}
+.menu-btn{top:calc(88px + var(--sat));left:12px}
+.zoomctl{position:fixed;z-index:35;right:12px;bottom:calc(16px + var(--sab));display:flex;flex-direction:column;align-items:center;gap:8px}
+.zoomctl button{width:48px;height:44px;border-radius:12px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-weight:800;font-size:13px;letter-spacing:.06em;color:var(--ink);box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.zoomctl button:hover{border-color:var(--ink)}
+.zpct{font-size:12px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.hint{position:fixed;z-index:30;left:50%;bottom:calc(18px + var(--sab));transform:translateX(-50%);background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:999px;padding:10px 18px;font-size:13px;color:var(--muted);white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.modelbadge{position:fixed;z-index:30;left:12px;bottom:calc(18px + var(--sab));font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:999px;padding:9px 14px}
+body.linear .zoomctl,body.linear .hint{display:none}
+body.linear .menu-btn{position:fixed;top:auto;bottom:calc(16px + var(--sab));left:auto;right:12px}
+body.linear .modelbadge{display:none}
+
+/* ---------- Viewport & world ---------- */
+#viewport{position:fixed;inset:0;overflow:hidden;touch-action:none;cursor:grab;background-color:var(--bg);background-image:radial-gradient(circle,var(--dot) 1.1px,transparent 1.4px);background-size:28px 28px}
+#viewport.dragging{cursor:grabbing}
+#world{position:absolute;left:0;top:0;transform-origin:0 0;width:max-content;padding:150px 170px 220px;user-select:none;-webkit-user-select:none}
+#world.anim{will-change:transform}
+body.linear #viewport{position:static;overflow:visible;touch-action:auto;cursor:auto}
+body.linear #world{position:static;transform:none!important;width:auto;max-width:1260px;margin:0 auto;padding-inline:16px;padding-block:92px 88px;user-select:text;-webkit-user-select:text}
+.row{display:flex;align-items:flex-start}
+.row>.conn{align-self:stretch}
+.row-2{display:block;margin-top:220px}
+body.linear .row{flex-direction:column}
+body.linear .row-2{margin-top:40px}
+.sec{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-xl);padding:64px 68px 60px;box-shadow:var(--shadow);scroll-margin-top:90px}
+body:not(.linear) .sec-a{width:1700px}
+body:not(.linear) .sec-b{width:1700px}
+body:not(.linear) .sec-c{width:2080px}
+body:not(.linear) .sec-d{width:1700px}
+body.linear .sec{padding:30px 20px 28px;border-radius:24px;margin-bottom:22px}
+.conn{width:190px;display:flex;align-items:center;justify-content:center;flex:none}
+.conn-in{display:flex;align-items:center;width:100%;padding:0 14px}
+.conn-dot{width:40px;height:40px;border-radius:50%;border:2px solid var(--red);display:grid;place-items:center;font-weight:800;font-size:15px;color:var(--red-ink);background:#fff;flex:none}
+.conn-dot.on{background:var(--red);color:#fff}
+.conn-line{flex:1;height:2px;background:repeating-linear-gradient(90deg,var(--red) 0 8px,transparent 8px 14px)}
+body.linear .conn{display:none}
+
+/* ---------- Section typography ---------- */
+.chip-sec{display:inline-flex;align-items:center;gap:12px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:30px}
+.chip-sec b{min-width:32px;height:32px;padding:0 8px;border-radius:16px;border:2px solid var(--red);color:var(--red-ink);display:grid;place-items:center;font-size:14px;letter-spacing:0}
+.kicker{font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--red-ink);margin-bottom:18px}
+.h2{font-size:78px;margin:0}
+body.linear .h2{font-size:clamp(34px,7vw,64px)}
+.lead{font-size:21px;line-height:1.45;color:var(--text);max-width:820px;margin:20px 0 0}
+body.linear .lead{font-size:18px}
+
+/* ---------- A · hero ---------- */
+.hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:40px;align-items:start}
+body:not(.linear) .hero-grid{grid-template-columns:980px 1fr;gap:60px}
+.hero-title{font-size:156px;margin:0}
+.hero-title span{display:block}
+.hero-title .accent{color:var(--red)}
+body.linear .hero-title{font-size:clamp(46px,11vw,120px)}
+.hero-lead{font-size:23px;line-height:1.45;margin:28px 0 0;max-width:820px}
+.hero-lead strong{color:var(--ink)}
+body.linear .hero-lead{font-size:18px}
+.pains{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px;margin-top:34px}
+.pain{display:block;text-align:left;background:var(--panel-2);border:1px solid var(--line);border-radius:18px;padding:18px 18px 16px;transition:border-color .15s,background .15s,box-shadow .15s}
+.pain:hover{border-color:var(--red);background:#fff;box-shadow:0 8px 20px rgba(0,0,0,.06)}
+.pain-top{display:flex;align-items:center;gap:12px}
+.pain-ic{width:38px;height:38px;border-radius:11px;background:var(--red-50);color:var(--red);display:grid;place-items:center;flex:none}
+.pain-val{font-stretch:74%;font-weight:800;font-size:44px;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums}
+.pain-label{font-size:15px;line-height:1.4;margin-top:10px;color:var(--text)}
+.pain-agent{margin-top:12px;font-size:11px;font-weight:800;letter-spacing:.09em;color:var(--red-ink);text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.pain-agent .ic{width:14px;height:14px}
+.hero-side{display:flex;flex-direction:column;gap:18px}
+.profile{border:1px solid var(--line);border-radius:24px;overflow:hidden;background:#fff}
+.profile-art{background:var(--panel-2);border-bottom:1px solid var(--line);padding:22px 24px 16px}
+.profile-art svg{display:block;width:100%;height:auto}
+.profile-body{padding:22px 24px 22px}
+.tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:var(--red);color:#fff;border-radius:6px;padding:4px 8px}
+.profile-name{font-size:30px;font-weight:800;color:var(--ink);margin-top:12px;line-height:1.1}
+.profile-obor{font-size:16px;color:var(--muted);margin-top:4px}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:18px}
+.fact{background:#fff;padding:12px 14px}
+.fact b{display:block;font-stretch:78%;font-size:22px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+.fact span{font-size:12px;color:var(--muted)}
+@media (max-width:520px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.profile-note{font-size:12.5px;color:var(--muted);margin-top:14px;line-height:1.45}
+.story{background:var(--dark);color:#fff;border-radius:24px;padding:26px 26px 22px}
+.story-val{font-stretch:72%;font-weight:800;font-size:64px;line-height:1;color:var(--red)}
+.story p{font-size:18px;line-height:1.45;margin:10px 0 16px;color:#fff}
+.story-tag{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--on-dark-muted);border-top:1px solid var(--dark-line);padding-top:12px}
+.feed{background:var(--dark-3);color:#fff;border-radius:24px;padding:20px 22px 12px}
+.feed-head{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--on-dark-muted)}
+.live-dot{width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:0 0 0 0 rgba(250,43,43,.6);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(250,43,43,.55)}70%{box-shadow:0 0 0 10px rgba(250,43,43,0)}100%{box-shadow:0 0 0 0 rgba(250,43,43,0)}}
+.feed-list{list-style:none;margin:12px 0 0;padding:0;min-height:300px}
+.feed-list li{display:grid;grid-template-columns:48px 1fr;gap:10px;padding:10px 0;border-top:1px solid #3a3a3a;font-size:14px;line-height:1.4;color:#EDEDED}
+.feed-list li.new{animation:feedIn .45s ease-out}
+@keyframes feedIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.feed-time{font-variant-numeric:tabular-nums;color:var(--on-dark-muted);font-size:13px}
+.feed-agent{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--red-on-dark);margin-bottom:2px}
+
+/* ---------- B · kalkulačka ---------- */
+.b-head{display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;justify-content:space-between}
+.cur{display:inline-flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.cur button{padding:9px 16px;font-weight:800;font-size:14px;color:var(--muted)}
+.cur button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:30px;margin-top:34px;align-items:start}
+body:not(.linear) .calc{grid-template-columns:660px 1fr}
+.result{background:var(--dark);color:#fff;border-radius:26px;padding:28px 28px 24px}
+.lbl{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--on-dark-muted)}
+.res-val{font-stretch:72%;font-weight:800;font-size:84px;line-height:1;margin-top:8px;font-variant-numeric:tabular-nums;color:#fff}
+.res-val.pos{color:#fff}
+body.linear .res-val{font-size:clamp(40px,11vw,84px)}
+.calc>*,.b-head>div,.hero-grid>*{min-width:0}
+.res-val.pos::first-letter{color:var(--red)}
+.res-sub{font-size:16px;color:var(--on-dark-muted);margin-top:8px;font-variant-numeric:tabular-nums}
+.res-sub b{color:#fff}
+.target{margin-top:22px;background:var(--dark-2);border-radius:18px;padding:18px 18px 16px}
+.target-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
+.target-v{font-stretch:78%;font-weight:800;font-size:22px;color:#fff;font-variant-numeric:tabular-nums}
+.track{position:relative;height:14px;border-radius:7px;background:#555;margin:16px 0 10px}
+.track .fill{position:absolute;left:0;top:0;bottom:0;border-radius:7px;background:var(--red);transition:width .35s}
+.track .over{position:absolute;top:0;bottom:0;border-radius:0 7px 7px 0;background:repeating-linear-gradient(45deg,#FF8A8A 0 6px,#FA2B2B 6px 12px);transition:left .35s,width .35s}
+.track .mark{position:absolute;top:-5px;width:3px;height:24px;border-radius:2px;background:#fff}
+.track-lbls{display:flex;justify-content:space-between;font-size:12px;color:var(--on-dark-muted);font-variant-numeric:tabular-nums}
+.target-msg{font-size:15px;line-height:1.45;margin-top:12px;color:#EDEDED}
+.target-msg b{color:#fff}
+.wf{margin-top:18px;background:#fff;border-radius:18px;padding:14px 14px 8px;color:var(--text)}
+.wf svg{display:block;width:100%;height:auto}
+.disclaim{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--on-dark-muted);margin-top:14px;line-height:1.45}
+.disclaim .ic{width:16px;height:16px;margin-top:2px}
+details.how{margin-top:12px;font-size:13.5px;color:var(--on-dark-muted);line-height:1.5}
+details.how summary{cursor:pointer;font-weight:700;color:#fff}
+details.how table{width:100%;border-collapse:collapse;margin-top:8px;font-variant-numeric:tabular-nums}
+details.how td{padding:5px 0;border-top:1px solid #4a4a4a}
+details.how td:last-child{text-align:right;color:#fff}
+.areas{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,390px),1fr));gap:14px}
+.area{border:1px solid var(--line);border-radius:20px;padding:18px 18px 16px;background:var(--panel-2);transition:border-color .2s,background .2s,box-shadow .2s}
+.area.on{border-color:var(--red);background:#fff;box-shadow:0 0 0 4px var(--red-50)}
+.area-head{display:flex;align-items:center;gap:12px}
+.area-ic{width:42px;height:42px;border-radius:12px;background:#fff;border:1px solid var(--line);color:var(--muted);display:grid;place-items:center;flex:none;transition:.2s}
+.area.on .area-ic{background:var(--red);border-color:var(--red);color:#fff}
+.area-t{font-weight:800;font-size:17px;color:var(--ink);line-height:1.2}
+.area-a{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.switch{margin-left:auto;display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--muted);flex:none}
+.switch .knob{width:44px;height:26px;border-radius:13px;background:#cfcfcf;position:relative;transition:.2s}
+.switch .knob::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:.2s}
+.switch[aria-checked="true"]{color:var(--red-ink)}
+.switch[aria-checked="true"] .knob{background:var(--red)}
+.switch[aria-checked="true"] .knob::after{left:21px}
+.area-items{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 0}
+.area-items span{font-size:12.5px;padding:4px 10px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--text)}
+.area-arrows{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:12px;font-size:13px;color:var(--muted)}
+.area-arrows span{display:inline-flex;align-items:center;gap:4px}
+.area-arrows .ic{width:14px;height:14px;color:var(--red)}
+.area-ctl{margin-top:14px;padding-top:14px;border-top:1px solid var(--line-2)}
+.area-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:14px}
+.area-row b{font-variant-numeric:tabular-nums;color:var(--ink);font-size:15px}
+.area-row .lift{font-stretch:78%;font-weight:800;font-size:22px;color:var(--red-ink);font-variant-numeric:tabular-nums}
+.area:not(.on) .area-row .lift{color:var(--faint)}
+.area-sub{font-size:13px;color:var(--muted);margin-top:6px;font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;margin:6px 0 2px;cursor:pointer}
+input[type=range]:disabled{cursor:not-allowed;opacity:.45}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--red) 0 var(--p,0%),#d9d9d9 var(--p,0%) 100%)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--red);margin-top:-8px;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:#d9d9d9}
+input[type=range]::-moz-range-progress{height:6px;border-radius:3px;background:var(--red)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--red)}
+
+/* ---------- C · co bude hotové ---------- */
+.deliver{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:16px;margin-top:40px}
+.dcol{background:var(--panel-2);border:1px solid var(--line);border-radius:22px;padding:26px 24px 18px}
+.dcol-num{font-stretch:72%;font-weight:800;font-size:40px;line-height:1;color:var(--red);text-transform:uppercase}
+.dcol-title{font-weight:800;letter-spacing:.07em;font-size:18px;text-transform:uppercase;color:var(--ink);margin-top:14px}
+.dcol-agent{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--muted);margin-top:6px}
+.dcol-agent .ic{width:17px;height:17px;color:var(--red)}
+.dcol ul{list-style:none;margin:18px 0 0;padding:0}
+.dcol li{display:flex;gap:10px;padding:12px 0;border-top:1px solid var(--line);font-size:17.5px;line-height:1.35;color:var(--text)}
+.dcol li .ic{color:var(--red);width:18px;height:18px;margin-top:2px;stroke-width:2.4}
+body.linear .dcol li{font-size:15.5px;padding:9px 0}
+
+/* ---------- D · co potřebujete ---------- */
+.pills{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:22px}
+.pills span{font-stretch:78%;font-weight:800;font-size:30px;text-transform:uppercase;color:var(--ink);border:2px solid var(--ink);border-radius:14px;padding:6px 16px}
+.pills i{font-style:normal;font-weight:800;font-size:30px;color:var(--red)}
+.tl{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:34px}
+.tl-seg{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px 12px 10px;border-top:4px solid var(--red)}
+.tl-seg b{display:block;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tl-seg span{display:block;font-size:15px;font-weight:700;color:var(--ink);margin-top:4px;line-height:1.25}
+.tl-after{margin-top:6px;background:var(--dark);color:#fff;border-radius:12px;padding:12px 14px;font-size:14px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.tl-after b{font-weight:800}
+@media (max-width:760px){.tl{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+.tl-seg.opt{border-top-style:dashed}
+.mods{display:grid;gap:8px;margin-top:8px}
+.mods:empty{display:none}
+.mod-row{display:flex;align-items:center;gap:14px;border:1px dashed #C9C9C9;border-radius:14px;padding:12px 16px;background:#fff}
+.mod-row.on{border-style:solid;border-color:var(--red);box-shadow:0 0 0 3px var(--red-50)}
+.mod-row b{display:block;color:var(--ink);font-size:15px;line-height:1.3}
+.mod-row .t{display:block;font-size:13.5px;color:var(--muted);line-height:1.4;margin-top:2px}
+.mod-row .switch,.lane-mod .switch{margin-left:0}
+.area-mod{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--red-ink);margin-top:4px}
+.lane.off{opacity:.62}
+.lane-mod{display:flex;align-items:center;gap:12px;margin-top:18px;padding:12px 14px;border:1px dashed #6a6a6a;border-radius:14px;font-size:14px;line-height:1.4;color:#EDEDED}
+.lane-mod .switch{color:#E6E6E6}
+.lane-mod .switch[aria-checked="true"]{color:var(--red-on-dark)}
+.lane.off .lane-num{-webkit-text-stroke-color:#9a9a9a}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px;margin-top:26px}
+.prod{border:1px solid var(--line);border-radius:22px;padding:24px 22px 18px;background:#fff;display:flex;flex-direction:column}
+.prod.hl{background:var(--dark);border-color:var(--dark);color:#fff}
+.prod-num{font-stretch:72%;font-weight:800;font-size:34px;line-height:1;color:var(--red);text-transform:uppercase}
+.prod-name{font-size:22px;font-weight:800;line-height:1.15;margin-top:10px;color:var(--ink)}
+.prod.hl .prod-name{color:#fff}
+.prod-sub{font-size:14px;color:var(--muted);margin-top:6px}
+.prod.hl .prod-sub{color:var(--on-dark-muted)}
+.prod ul{list-style:none;margin:14px 0 0;padding:0}
+.prod li{display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--line-2);font-size:16px;line-height:1.4}
+body.linear .prod li{font-size:14.5px}
+.prod.hl li{border-color:var(--dark-line)}
+.prod li .ic{color:var(--red);width:16px;height:16px;margin-top:2px;stroke-width:2.4}
+.cta-box{margin-top:26px;border-radius:22px;background:var(--red-50);border:1px solid var(--red-100);padding:24px 26px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:space-between}
+.cta-box strong{display:block;font-size:22px;color:var(--ink)}
+.cta-box .btn,.weeks-end .btn{white-space:normal}
+body.linear .cta-box{padding:18px}
+.cta-box span{font-size:15px;color:var(--text)}
+
+/* ---------- Týdny ---------- */
+.weeks-head{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-xl);padding:56px 60px;box-shadow:var(--shadow);margin-bottom:56px;display:grid;grid-template-columns:1fr;gap:34px;align-items:end;scroll-margin-top:90px}
+body:not(.linear) .row-2{display:flex;align-items:flex-start;gap:60px}
+body:not(.linear) .weeks-head{width:1320px;flex:none;margin:0}
+body:not(.linear) .weeks-head .h2{font-size:96px}
+body:not(.linear) .legend{justify-content:flex-start;max-width:none}
+body:not(.linear) .legend span{font-size:16px;padding:7px 16px 7px 7px}
+body:not(.linear) .legend span i{width:34px;height:34px}
+body.linear .weeks-head{grid-template-columns:1fr;padding:28px 20px;border-radius:24px;margin-bottom:22px;gap:20px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start}
+.legend span{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:5px 12px 5px 5px;font-size:13px;font-weight:700;color:var(--ink);background:var(--panel-2)}
+.legend span i{width:26px;height:26px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center}
+.legend span i .ic{width:14px;height:14px}
+.wk-list{display:grid;gap:8px}
+.wk{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;text-align:left;border:1px solid var(--line);border-radius:16px;padding:12px 18px 12px 12px;background:var(--panel-2);transition:border-color .15s,background .15s}
+.wk:hover{border-color:var(--red);background:#fff}
+.wk-n{min-width:52px;padding:0 8px;height:52px;border-radius:14px;background:var(--dark);color:#fff;display:grid;place-items:center;font-stretch:74%;font-weight:800;font-size:28px}
+.wk-t b{display:block;font-size:19px;color:var(--ink);line-height:1.2}
+.wk-t span{font-size:14px;color:var(--muted)}
+.wk-i{text-align:right;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.wk-i b{display:block;font-stretch:76%;font-size:26px;color:var(--red-ink);letter-spacing:0}
+body.linear .wk-t b{font-size:16px}
+@media (max-width:560px){.wk{grid-template-columns:44px 1fr}.wk-n{width:44px;height:44px;font-size:22px}.wk-i{display:none}}
+.lanes{display:flex;gap:60px;align-items:flex-start}
+body.linear .lanes{flex-direction:column;align-items:stretch;gap:22px}
+.lane{background:var(--dark);border-radius:var(--r-xl);padding:26px;color:#fff;box-shadow:0 20px 40px rgba(0,0,0,.18);scroll-margin-top:90px}
+body:not(.linear) .lane{width:660px;flex:none}
+body.linear .lane{padding:20px 14px;border-radius:24px}
+.lane-head{padding:10px 8px 26px}
+.lane-top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px}
+.lane-num{font-stretch:72%;font-weight:800;font-size:132px;line-height:.78;color:transparent;-webkit-text-stroke:2px var(--red)}
+.lane-impact{text-align:right}
+.lane-impact b{display:block;font-stretch:74%;font-weight:800;font-size:44px;line-height:1;color:#fff}
+.lane-impact span{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--on-dark-muted)}
+.lane-kick{font-size:12px;letter-spacing:.16em;font-weight:800;color:var(--red-on-dark);margin-top:22px;text-transform:uppercase}
+.lane-title{font-stretch:80%;font-weight:800;font-size:36px;line-height:1.02;text-transform:uppercase;margin:8px 0 18px;color:#fff}
+body.linear .lane-title{font-size:28px}
+.agent-chip{display:inline-flex;gap:10px;align-items:center;background:var(--dark-2);border:1px solid var(--dark-line);border-radius:999px;padding:5px 16px 5px 5px}
+.agent-chip i{width:34px;height:34px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center}
+.agent-chip b{font-size:15px}
+.agent-chip span{font-size:13px;color:var(--on-dark-muted)}
+.lane-arrows{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:16px;font-size:14px;color:#E6E6E6}
+.lane-arrows span{display:inline-flex;align-items:center;gap:5px}
+.lane-arrows .ic{width:15px;height:15px;color:var(--red-on-dark)}
+.cards{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
+body:not(.linear) .cards{grid-template-columns:minmax(0,1fr)}
+.cards>*,.card-prev,.blk{min-width:0}
+.card{background:#fff;color:var(--text);border-radius:22px;padding:24px 24px 20px;cursor:pointer;transition:box-shadow .15s,transform .15s;position:relative}
+.card:hover{box-shadow:0 0 0 3px var(--red),0 18px 36px rgba(0,0,0,.3)}
+.card-meta{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;gap:10px;align-items:center}
+.card-id{background:var(--red);color:#fff;border-radius:7px;padding:4px 8px;letter-spacing:.02em;font-size:12px}
+.card-title{font-size:25px;line-height:1.15;font-weight:800;color:var(--ink);margin:14px 0 8px}
+.card-desc{font-size:15.5px;line-height:1.5;margin:0}
+.prompt{margin-top:14px;background:var(--panel-2);border:1px dashed #CFCFCF;border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.45;display:flex;gap:12px;color:var(--ink)}
+.prompt-lbl{font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--red-ink);padding-top:3px;flex:none}
+.booster{margin-top:10px;font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;line-height:1.8}
+.booster code{font-family:var(--mono);text-transform:none;letter-spacing:0;color:var(--text);background:var(--panel-2);border:1px solid var(--line-2);padding:1px 6px;border-radius:6px;font-size:12px;font-weight:500}
+.card-prev{margin-top:16px;padding-top:16px;border-top:1px solid var(--line-2);max-height:360px;overflow:hidden;position:relative;pointer-events:none}
+.card-prev::after{content:"";position:absolute;left:0;right:0;bottom:0;height:70px;background:linear-gradient(rgba(255,255,255,0),#fff)}
+.card-open{margin-top:12px;display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:14px;color:var(--red-ink);border-radius:10px;padding:8px 12px 8px 0}
+.card-open .ic{width:16px;height:16px;transition:transform .15s}
+.card:hover .card-open .ic{transform:translateX(4px)}
+.weeks-end{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-xl);padding:40px;box-shadow:var(--shadow);width:520px;flex:none;align-self:flex-start;margin-top:0}
+body.linear .weeks-end{width:auto;padding:26px 20px;border-radius:24px}
+.weeks-end h3{font-size:34px;margin:14px 0 10px}
+.weeks-end p{font-size:16px;line-height:1.5;margin:0 0 20px}
+.weeks-end .btns{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+
+/* ---------- Bloky výstupů (karta i detail) ---------- */
+.blk+.blk{margin-top:22px}
+.blk-title{font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.fields{display:grid;grid-template-columns:180px 1fr;margin:0}
+.fields dt{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--red-ink);padding:11px 14px 11px 0;border-top:1px solid var(--line-2);line-height:1.5}
+.fields dd{margin:0;padding:10px 0;border-top:1px solid var(--line-2);font-size:15px;line-height:1.55;color:var(--text)}
+.fields dt:first-of-type,.fields dt:first-of-type+dd{border-top:0}
+.c .fields{grid-template-columns:120px 1fr}
+.c .fields dd{font-size:14px}
+@media (max-width:560px){.fields,.c .fields{grid-template-columns:1fr}.fields dt{padding-bottom:0}.fields dd{border-top:0;padding-top:4px}}
+.txt p{margin:0 0 10px;font-size:15.5px;line-height:1.6}
+.txt p:last-child{margin-bottom:0}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fff}
+table.tbl{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+.tbl th{text-align:left;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);background:var(--panel-2);padding:10px 12px;font-weight:800;white-space:nowrap}
+.tbl td{padding:10px 12px;border-top:1px solid var(--line-2);vertical-align:top;line-height:1.45;color:var(--text)}
+.tbl td:first-child{color:var(--ink);font-weight:600}
+.tbl .num{text-align:right;white-space:nowrap}
+.tbl-note{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.45}
+.c table.tbl{font-size:13px}
+.c .tbl td,.c .tbl th{padding:8px 10px}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;white-space:nowrap;line-height:1.4}
+.pill.ok{background:var(--green-50);color:var(--green)}
+.pill.warn{background:var(--amber-50);color:var(--amber)}
+.pill.bad{background:var(--red-50);color:var(--red-ink)}
+.pill.info{background:#EFEFEF;color:#4A4A4A}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px}
+.kpi-v{font-stretch:76%;font-weight:800;font-size:31px;color:var(--ink);line-height:1.05;font-variant-numeric:tabular-nums}
+.kpi-l{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.35}
+.kpi-d{font-size:12.5px;font-weight:700;margin-top:6px;color:var(--muted)}
+.kpi-d.good{color:var(--green)}
+.kpi-d.bad{color:var(--red-ink)}
+.c .kpi-v{font-size:26px}
+.bars{display:grid;gap:9px}
+.bar-row{display:grid;grid-template-columns:minmax(110px,190px) 1fr 104px;gap:12px;align-items:center;font-size:14px}
+.bar-l{color:var(--ink);font-weight:600;line-height:1.3}
+.bar-track{height:14px;background:var(--panel-2);border-radius:7px;position:relative;overflow:hidden;border:1px solid var(--line-2)}
+.bar-fill{position:absolute;left:0;top:0;bottom:0;border-radius:7px;background:var(--red)}
+.bar-fill.dark{background:var(--text)}
+.bar-fill.good{background:var(--green)}
+.bar-fill.muted{background:#BDBDBD}
+.bar-v{text-align:right;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+@media (max-width:560px){.bar-row{grid-template-columns:1fr 84px}.bar-track{grid-column:1/-1;grid-row:2}}
+.score{display:grid;gap:14px}
+.score-row{display:grid;grid-template-columns:130px 1fr 70px;gap:14px;align-items:center}
+.score-row span{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.score-row b{font-stretch:74%;font-size:40px;font-weight:800;color:var(--ink);text-align:right;line-height:1}
+.score-row.after b{color:var(--red)}
+.score-bar{height:18px;border-radius:9px;background:var(--panel-2);border:1px solid var(--line);overflow:hidden}
+.score-bar i{display:block;height:100%;background:#9E9E9E;border-radius:9px}
+.score-row.after .score-bar i{background:var(--red)}
+.steps{list-style:none;margin:0;padding:0;position:relative}
+.steps li{display:grid;grid-template-columns:64px 1fr;gap:14px;position:relative;padding-bottom:16px}
+.steps li::before{content:"";position:absolute;left:70px;top:6px;width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid var(--red);z-index:1}
+.steps li::after{content:"";position:absolute;left:75px;top:18px;bottom:-4px;width:2px;background:var(--line)}
+.steps li:last-child::after{display:none}
+.steps li:last-child{padding-bottom:0}
+.st-t{font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;font-size:14px;text-align:right;padding-top:2px}
+.st-b{padding-left:28px}
+.st-b b{display:block;color:var(--ink);font-size:15.5px}
+.st-b p{margin:3px 0 0;font-size:14.5px;line-height:1.5}
+.c .st-b p{display:none}
+.quote{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
+.q-head{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:18px 20px;background:var(--panel-2);border-bottom:1px solid var(--line)}
+.q-no{font-stretch:78%;font-weight:800;font-size:26px;color:var(--ink)}
+.q-no small{display:block;font-stretch:100%;font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--red-ink)}
+.q-meta{font-size:13.5px;line-height:1.55;color:var(--text)}
+.q-meta b{color:var(--ink)}
+.quote .tbl-wrap{border:0;border-radius:0}
+.q-tot{padding:12px 20px 16px;border-top:1px solid var(--line);display:grid;justify-content:end;gap:4px;font-variant-numeric:tabular-nums}
+.q-tot div{display:grid;grid-template-columns:auto 150px;gap:18px;font-size:14px;text-align:right}
+.q-tot .grand{font-size:20px;font-weight:800;color:var(--ink);border-top:1px solid var(--line);padding-top:8px;margin-top:4px}
+.q-notes{padding:0 20px 18px;font-size:13.5px;color:var(--muted);line-height:1.55}
+.q-compact{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--panel-2)}
+.q-compact .q-sum{text-align:right}
+.q-compact .q-sum b{display:block;font-stretch:76%;font-size:28px;font-weight:800;color:var(--ink)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tabs button{border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:13px;font-weight:700;color:var(--muted);background:#fff}
+.tabs button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.mail{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
+.mail-meta{padding:14px 18px;background:var(--panel-2);border-bottom:1px solid var(--line);display:grid;grid-template-columns:70px 1fr;gap:4px 12px;font-size:13.5px}
+.mail-meta span{color:var(--muted);font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding-top:2px}
+.mail-meta b{color:var(--ink)}
+.mail-body{padding:16px 18px 18px;font-size:15px;line-height:1.6}
+.mail-body p{margin:0 0 10px}
+.mail-body p:last-child{margin:0}
+.c .mail-body{font-size:14px;padding:12px 16px}
+.chat{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#F4F2EE}
+.chat-head{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#fff;border-bottom:1px solid var(--line);font-size:14px}
+.chat-head i{width:32px;height:32px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center}
+.chat-head b{color:var(--ink)}
+.chat-head span{color:var(--muted);font-size:12.5px;display:block}
+.chat-body{padding:14px 14px 16px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:84%;border-radius:14px;padding:9px 12px 7px;font-size:14.5px;line-height:1.5;background:#fff;box-shadow:0 1px 1px rgba(0,0,0,.06);color:var(--ink)}
+.msg.r{align-self:flex-end;background:#FFE4E1}
+.msg-n{display:block;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--red-ink);margin-bottom:2px}
+.msg-t{display:block;text-align:right;font-size:11px;color:var(--muted);margin-top:2px}
+.check{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.check li{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line-2);font-size:15px;line-height:1.45}
+.check li:first-child{border-top:0}
+.check i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--green-50);color:var(--green);margin-top:1px}
+.check i .ic{width:14px;height:14px;stroke-width:2.6}
+.check li.warn i{background:var(--amber-50);color:var(--amber)}
+.check li.todo i{background:var(--panel-2);color:var(--faint);border:1px solid var(--line)}
+.c .check li{font-size:14px;padding:6px 0}
+.callout{border-left:4px solid var(--red);background:var(--red-50);border-radius:0 14px 14px 0;padding:14px 18px}
+.callout b{display:block;font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--red-ink);margin-bottom:6px}
+.callout p{margin:0;font-size:15px;line-height:1.55;color:var(--ink)}
+.callout.dark{background:var(--dark);border-color:var(--red);color:#fff}
+.callout.dark b{color:var(--red-on-dark)}
+.callout.dark p{color:#fff}
+.callout.grey{background:var(--panel-2);border-color:var(--text)}
+.callout.grey b{color:var(--muted)}
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px}
+.split>div{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--panel-2)}
+.split>div.after{border-color:var(--red);background:#fff;box-shadow:0 0 0 3px var(--red-50)}
+.split h5{margin:0 0 8px;font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+.split .after h5{color:var(--red-ink)}
+.split strong{display:block;color:var(--ink);font-size:16px;line-height:1.35;margin-bottom:6px}
+.split p{margin:0;font-size:14.5px;line-height:1.55}
+.board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(190px,1fr);gap:10px;overflow-x:auto;padding-bottom:4px}
+.b-col{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:10px}
+.b-col h5{margin:2px 4px 10px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between}
+.b-col h5 em{font-style:normal;color:var(--ink)}
+.b-item{background:#fff;border:1px solid var(--line);border-left:3px solid var(--text);border-radius:10px;padding:9px 10px;margin-top:8px;font-size:13px;line-height:1.4}
+.b-item b{display:block;color:var(--ink);font-size:13.5px}
+.b-item span{color:var(--muted)}
+.b-item.red{border-left-color:var(--red)}
+.b-item.good{border-left-color:var(--green)}
+.b-item.warn{border-left-color:#E0A000}
+.gantt{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+.g-row{display:grid;grid-template-columns:150px 1fr;border-top:1px solid var(--line-2)}
+.g-row:first-child{border-top:0}
+.g-l{padding:10px 12px;font-size:13px;font-weight:700;color:var(--ink);background:var(--panel-2);border-right:1px solid var(--line-2);line-height:1.3}
+.g-l small{display:block;font-weight:500;color:var(--muted);font-size:11.5px}
+.g-track{position:relative;min-height:48px;background-image:linear-gradient(90deg,var(--line-2) 1px,transparent 1px);background-size:var(--tick) 100%}
+.g-blk{position:absolute;top:7px;bottom:7px;border-radius:8px;background:var(--text);color:#fff;font-size:11.5px;line-height:1.2;padding:5px 7px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-weight:600}
+.g-blk.red{background:var(--red)}
+.g-blk.warn{background:repeating-linear-gradient(45deg,#F6C04E 0 6px,#F2B230 6px 12px);color:#3a2a00}
+.g-blk.muted{background:#CFCFCF;color:#333}
+.g-blk.pin{background:none;color:var(--ink);overflow:visible;padding:5px 0 0 16px;font-weight:700}
+.g-blk.pin::before{content:"";position:absolute;left:0;top:9px;width:11px;height:11px;border-radius:50%;background:var(--text)}
+.g-blk.pin.red::before{background:var(--red)}
+.g-blk.pin.red{color:var(--red-ink)}
+.g-hours span:last-child{transform:translateX(-100%)}
+.g-hours span:first-child{transform:none}
+.g-hours{display:grid;grid-template-columns:150px 1fr;background:var(--panel-2);border-bottom:1px solid var(--line)}
+.g-hours div:last-child{position:relative;height:26px}
+.g-hours span{position:absolute;top:6px;font-size:11px;font-weight:700;color:var(--muted);transform:translateX(-50%)}
+.c .g-row{grid-template-columns:100px 1fr}
+.c .g-hours{grid-template-columns:100px 1fr}
+.c .g-l small{display:none}
+.cuts{display:grid;gap:18px}
+.cut-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;margin-bottom:8px}
+.cut-head b{font-size:14px;color:var(--ink);text-transform:uppercase;letter-spacing:.06em}
+.cut-head span{font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.cut-head span strong{color:var(--red-ink)}
+.cut-bar{display:flex;height:34px;border-radius:8px;overflow:hidden;border:1px solid var(--line);margin-top:6px;background:#fff}
+.cut-seg{display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;color:#fff;border-right:2px solid #fff;overflow:hidden;white-space:nowrap;min-width:0}
+.cut-seg.o1{background:#484848}
+.cut-seg.o2{background:#7A7A7A}
+.cut-seg.o3{background:#5B6773}
+.cut-seg.o4{background:#A9A9A9;color:#1f1f1f}
+.cut-seg.o5{background:#2A2A2A}
+.cut-seg.scrap{background:var(--red)}
+.cut-seg.rem{background:repeating-linear-gradient(45deg,#EFEFEF 0 6px,#DADADA 6px 12px);color:#333;border-right:0}
+.cut-leg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--muted)}
+.cut-leg span{display:inline-flex;align-items:center;gap:6px}
+.cut-leg i{width:14px;height:14px;border-radius:4px;display:inline-block}
+.wcalc{border:1px solid var(--line);border-radius:16px;padding:16px;background:var(--panel-2)}
+.wcalc-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px}
+@media (max-width:560px){.wcalc-grid{grid-template-columns:1fr 1fr}.wcalc-grid label:first-child{grid-column:1/-1}}
+.wcalc label{display:flex;flex-direction:column;gap:5px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.wcalc select,.wcalc input{font:inherit;font-size:15px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);text-transform:none;letter-spacing:0;width:100%}
+.wcalc-out{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.wcalc-out div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+.wcalc-out b{display:block;font-stretch:76%;font-size:26px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+.wcalc-out span{font-size:12px;color:var(--muted)}
+.wcalc-note{font-size:12.5px;color:var(--muted);margin-top:10px}
+.spark{border:1px solid var(--line);border-radius:14px;padding:12px 14px 8px;background:#fff}
+.spark-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.spark-top b{font-size:14px;color:var(--ink)}
+.spark-top span{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.spark-top span strong{color:var(--green)}
+.spark svg{display:block;width:100%;height:auto;margin-top:6px}
+.browser{border:1px solid #D5D5D5;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 10px 26px rgba(0,0,0,.08)}
+.br-bar{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#F1F1F1;border-bottom:1px solid #DDD}
+.br-bar i{width:10px;height:10px;border-radius:50%;background:#D0D0D0;display:inline-block}
+.br-url{flex:1;margin-left:8px;background:#fff;border-radius:8px;padding:5px 12px;font-size:12.5px;color:var(--muted);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.br-in{display:grid;grid-template-columns:170px 1fr}
+.br-nav{background:var(--dark);color:#fff;padding:16px 10px;display:flex;flex-direction:column;gap:4px;font-size:13.5px}
+.br-nav .br-logo{font-weight:800;font-size:15px;padding:0 8px 12px;letter-spacing:.02em}
+.br-nav span{padding:8px 10px;border-radius:8px;color:#D8D8D8}
+.br-nav span.on{background:var(--red);color:#fff;font-weight:700}
+.br-main{padding:16px;min-width:0}
+.br-main h4{margin:0 0 12px;font-size:18px;color:var(--ink)}
+@media (max-width:620px){.br-in{grid-template-columns:1fr}.br-nav{flex-direction:row;flex-wrap:wrap}.br-nav .br-logo{width:100%;padding-bottom:4px}}
+.c .br-in{grid-template-columns:110px 1fr}
+.c .br-nav{font-size:12px}
+.phone{width:320px;max-width:100%;margin:0 auto;border:10px solid #1f1f1f;border-radius:38px;overflow:hidden;background:#fff;box-shadow:0 14px 30px rgba(0,0,0,.18)}
+.ph-top{background:var(--dark);color:#fff;padding:18px 16px 12px;font-size:13px}
+.ph-top b{display:block;font-size:17px;margin-top:2px}
+.ph-in{padding:12px}
+.c .phone{width:250px;border-width:7px;border-radius:30px}
+
+/* ---------- Menu drawer ---------- */
+.scrim{position:fixed;inset:0;background:rgba(20,20,20,.38);z-index:60}
+.drawer{position:fixed;z-index:61;top:calc(12px + var(--sat));left:12px;bottom:calc(12px + var(--sab));width:min(380px,calc(100vw - 24px));background:#fff;border-radius:22px;box-shadow:0 20px 50px rgba(0,0,0,.25);display:flex;flex-direction:column;overflow:hidden}
+.dr-head{display:flex;align-items:center;justify-content:space-between;padding:18px 18px 12px 22px;border-bottom:1px solid var(--line)}
+.dr-head b{font-size:12px;font-weight:800;letter-spacing:.16em;color:var(--muted)}
+.dr-body{overflow:auto;padding:10px 12px 16px;flex:1}
+.dr-sec{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:14px 10px 6px}
+.dr-item{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;width:100%;text-align:left;padding:10px;border-radius:12px}
+.dr-item:hover{background:var(--panel-2)}
+.dr-item .n{min-width:40px;padding:0 6px;height:40px;border-radius:12px;border:2px solid var(--red);display:grid;place-items:center;font-weight:800;color:var(--red-ink);font-size:15px}
+.dr-item b{display:block;font-size:15px;color:var(--ink);line-height:1.2}
+.dr-item span{font-size:13px;color:var(--muted)}
+.dr-foot{border-top:1px solid var(--line);padding:14px 18px;display:flex;gap:10px;flex-wrap:wrap}
+.icon-btn{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:var(--ink)}
+.icon-btn:hover{background:var(--panel-2)}
+
+/* ---------- Modal ---------- */
+.modal{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:calc(20px + var(--sat)) 20px calc(20px + var(--sab))}
+.modal[hidden],.drawer[hidden],.scrim[hidden]{display:none}
+.m-back{position:absolute;inset:0;background:rgba(20,20,20,.55)}
+.m-panel{position:relative;width:min(1040px,100%);max-height:100%;background:#fff;border-radius:26px;box-shadow:0 30px 80px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden;animation:mIn .22s ease-out}
+@keyframes mIn{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
+.m-scroll{overflow:auto;overscroll-behavior:contain}
+.m-head{padding:30px 36px 22px;border-bottom:1px solid var(--line);background:var(--panel-2)}
+.m-close{position:absolute;top:14px;right:14px;width:44px;height:44px;border-radius:12px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;z-index:2}
+.m-close:hover{border-color:var(--ink)}
+.m-title{font-size:34px;line-height:1.1;font-weight:800;color:var(--ink);margin:12px 60px 8px 0}
+.m-desc{font-size:17px;line-height:1.5;margin:0;max-width:820px}
+.m-body{padding:26px 36px 30px;font-size:15px}
+.m-foot{display:flex;justify-content:space-between;gap:10px;padding:14px 18px;border-top:1px solid var(--line);background:#fff}
+.m-foot button{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);font-weight:700;font-size:14px;color:var(--ink);max-width:48%;text-align:left}
+.m-foot button:hover{border-color:var(--ink)}
+.m-foot button span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-foot button:disabled{visibility:hidden}
+@media (max-width:640px){.modal{padding:var(--sat) 0 var(--sab);align-items:stretch}.m-panel{max-height:100%;border-radius:0}.m-head{padding:22px 18px 16px}.m-body{padding:20px 16px 24px}.m-title{font-size:25px}}
+/* Nápověda: plovoucí karta, nezakrývá mapu */
+.guide-card{position:fixed;z-index:45;left:12px;bottom:calc(64px + var(--sab));width:min(400px,calc(100% - 24px));background:var(--dark);color:#fff;border-radius:20px;padding:20px 20px 18px;box-shadow:0 18px 44px rgba(0,0,0,.28);animation:mIn .22s ease-out}
+.guide-card .kicker{color:var(--red-on-dark);margin-bottom:6px;font-size:11px}
+.guide-card h2{font-size:21px;margin:0 40px 6px 0;color:#fff;font-weight:800;line-height:1.2}
+.guide-card p{font-size:14px;line-height:1.5;color:var(--on-dark-muted);margin:0}
+.g-list{list-style:none;margin:14px 0;padding:0;display:grid;gap:8px}
+.g-list li{display:grid;grid-template-columns:36px 1fr;gap:12px;align-items:center;background:var(--dark-2);border-radius:12px;padding:8px 10px;font-size:14px;color:#EDEDED}
+.g-list i{width:36px;height:36px;border-radius:10px;background:var(--dark-3);display:grid;place-items:center;color:var(--red-on-dark)}
+.g-list b{color:#fff}
+.g-list span{display:block;font-size:12.5px;color:var(--on-dark-muted)}
+.guide-card .btn-red{width:100%;justify-content:center;padding:12px}
+.gc-close{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:#fff;background:var(--dark-2)}
+.gc-close:hover{background:var(--dark-line)}
+body.linear .guide-card{display:none}
+.hint{transition:background .3s,color .3s,border-color .3s}
+.hint.hi{background:var(--dark);color:#fff;border-color:var(--dark);box-shadow:0 10px 28px rgba(0,0,0,.25)}
+.hint.hi::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-right:10px;vertical-align:1px;animation:pulse 2s infinite}
+/* Kontakt: adresa jako text ke zkopírování (odkaz mailto nemusí všude fungovat) */
+.contact .m-panel{width:min(580px,100%)}
+.ct-in{padding:34px 34px 30px;overflow:auto}
+.ct-title{font-size:30px;line-height:1.12;font-weight:800;color:var(--ink);margin:4px 48px 10px 0;text-wrap:balance}
+.ct-text{font-size:16px;line-height:1.55;margin:0 0 20px;color:var(--text);max-width:60ch}
+.ct-rows{display:grid;gap:8px}
+.ct-row{display:grid;grid-template-columns:80px minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:10px 10px 10px 16px;background:var(--panel-2)}
+.ct-k{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ct-v{font-size:17px;font-weight:700;color:var(--ink);user-select:all;-webkit-user-select:all;overflow-wrap:anywhere}
+.ct-v a{color:var(--red-ink)}
+.ct-copy{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap}
+.ct-copy:hover{border-color:var(--ink)}
+.ct-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:20px}
+.ct-note{font-size:13px;color:var(--muted);line-height:1.45;flex:1;min-width:200px}
+.ct-addr{font-size:13px;color:var(--muted);margin-top:16px}
+@media (max-width:480px){.ct-row{grid-template-columns:minmax(0,1fr) auto}.ct-k{grid-column:1/-1}.ct-in{padding:24px 18px}.ct-title{font-size:25px}}
+.err{max-width:640px;margin:120px auto;background:#fff;border-radius:22px;padding:32px;border:1px solid var(--line);font-size:16px;line-height:1.5}
+
+/* ---------- Úzké obrazovky ---------- */
+@media (max-width:820px){
+  .topbar{height:56px;gap:12px;padding:0 8px 0 14px;top:calc(8px + var(--sat));left:8px;right:8px}
+  .tb-copy{display:none}
+  .brand svg{height:24px}
+  .topbar .btn-red{padding:10px 12px;font-size:13.5px}
+}
+.cta-short{display:none}
+@media (max-width:560px){.topbar .cta-long{display:none}.topbar .cta-short{display:inline}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+@media print{
+  body{overflow:visible}
+  .topbar,.fab,.zoomctl,.hint,.modelbadge{display:none!important}
+}
+</style>
+</head>
+<body>
+<a class="sr" href="#world">Přeskočit na obsah</a>
+
+<header class="topbar">
+  <a class="brand" href="#" data-go="a" aria-label="XpertDigital, zpět na začátek">
+    <svg viewBox="0 0 305 104" role="img" aria-label="XpertDigital"><path d="M140.867 0H54.7167C40.2044 0 26.2865 5.47856 16.0248 15.2304C5.76303 24.9823 -.002 38.2087 -.002 52C-.002 65.7913 5.76303 79.0177 16.0248 88.7695C26.2865 98.5214 40.2044 104 54.7167 104H140.867C155.38 104 169.297 98.5214 179.559 88.7695C189.821 79.0177 195.586 65.7913 195.586 52C195.586 38.2087 189.821 24.9823 179.559 15.2304C169.297 5.47856 155.38 0 140.867 0ZM140.867 98.5492H54.7167C41.7866 98.4609 29.4177 93.5178 20.3073 84.7977C11.197 76.0776 6.08438 64.288 6.08438 52C6.08438 39.712 11.197 27.9224 20.3073 19.2023C29.4177 10.4822 41.7866 5.53906 54.7167 5.45081H140.867C147.329 5.4067 153.737 6.57817 159.72 8.89771C165.704 11.2173 171.146 14.639 175.732 18.9659C180.317 23.2928 183.957 28.4392 186.441 34.1087C188.925 39.7783 190.203 45.8588 190.203 52C190.203 58.1412 188.925 64.2217 186.441 69.8913C183.957 75.5608 180.317 80.7072 175.732 85.0341C171.146 89.361 165.704 92.7827 159.72 95.1023C153.737 97.4218 147.329 98.5933 140.867 98.5492Z" fill="#FA2B2B"/><path d="M57.0268 53.5356V50.378L34.7912 21.0829H48.4484L66.9925 45.9045L85.5416 21.0853H99.1988L76.8671 50.3804V53.538L99.1988 82.9171H85.5416L66.9925 58.0091L48.4434 82.9147H34.7861L57.0268 53.5356Z" fill="#FA2B2B"/><path d="M165.406 51.9556C165.406 78.6094 147.873 82.9148 131.168 82.9148H108.465V21.0853H131.168C147.87 21.0853 165.406 25.3835 165.406 51.9556ZM153.593 51.9556C153.593 32.2247 142.703 30.9088 131.168 30.9088H120.371V73.0913H131.168C142.703 73.0913 153.593 71.7755 153.593 51.9604" fill="#FA2B2B"/><path d="M250.28 0C239.458 0 228.879 3.04968 219.881 8.76338C210.882 14.4771 203.869 22.5982 199.728 32.0997C195.586 41.6013 194.503 52.0565 196.614 62.1433C198.725 72.23 203.936 81.4953 211.589 88.7675C219.241 96.0397 228.991 100.992 239.605 102.998C250.219 105.005 261.221 103.975 271.219 100.039C281.218 96.1038 289.763 89.4389 295.776 80.8878C301.788 72.3366 304.997 62.2832 304.997 51.9988C304.997 38.2081 299.232 24.9823 288.97 15.2308C278.709 5.47927 264.792.000637 250.28 0ZM279.626 82.9147H267.813V57.5697H232.84V82.9147H220.934V21.0853H232.84V47.739H267.816V21.0853H279.628L279.626 82.9147Z" fill="#484848"/></svg>
+  </a>
+  <div class="tb-copy"><strong id="ctaTitle">Chcete takovou mapu i pro svou firmu?</strong><span id="ctaText"></span></div>
+  <button class="btn btn-red" id="ctaBtn" type="button" data-cta><span class="cta-long" id="ctaBtnTxt">Získat AI Roadmapu zdarma</span><span class="cta-short" id="ctaBtnShort">AI Roadmapa zdarma</span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+</header>
+
+<button class="fab menu-btn" id="menuBtn" aria-label="Otevřít menu" aria-expanded="false" aria-controls="drawer">
+  <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<main id="viewport" aria-label="Interaktivní mapa">
+  <div id="world"></div>
+</main>
+
+<div class="zoomctl" id="zoomctl">
+  <span class="zpct" id="zpct" aria-live="off">100%</span>
+  <button data-z="in" aria-label="Přiblížit" title="Přiblížit (+)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button data-z="out" aria-label="Oddálit" title="Oddálit (−)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+  <button data-z="fit" aria-label="Zobrazit celou mapu" title="Celá mapa (F)">FIT</button>
+  <button data-z="page" aria-label="Číst jako stránku" title="Číst jako stránku"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/></svg></button>
+  <button data-z="help" aria-label="Nápověda k ovládání" title="Nápověda (N)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.4 2.4c-.7.3-1 .8-1 1.5v.3M12 16.8h.01"/></svg></button>
+</div>
+<div class="hint" id="hint">Táhněte myší = posun · kolečko = přiblížit · klik na kartu = výstup · F = celá mapa</div>
+<div class="modelbadge" id="modelbadge">Modelová data · fiktivní firma</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-label="Menu">
+  <div class="dr-head"><b>MENU</b><button class="icon-btn" id="drClose" aria-label="Zavřít menu"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="dr-body" id="drBody"></div>
+  <div class="dr-foot"><button class="btn btn-ghost" id="modeBtn" type="button">Číst jako stránku</button></div>
+</aside>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="m-back" data-close></div>
+  <div class="m-panel">
+    <button class="m-close" data-close aria-label="Zavřít (Esc)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <div class="m-scroll" id="mScroll">
+      <header class="m-head" id="mHead"></header>
+      <div class="m-body" id="mBody"></div>
+    </div>
+    <footer class="m-foot"><button id="mPrev" type="button"></button><button id="mNext" type="button"></button></footer>
+  </div>
+</div>
+
+<aside class="guide-card" id="guide" hidden aria-labelledby="gTitle">
+  <button class="gc-close" type="button" data-gclose aria-label="Zavřít nápovědu"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <div id="guideIn"></div>
+</aside>
+
+<div class="modal contact" id="contact" hidden role="dialog" aria-modal="true" aria-labelledby="ctTitle">
+  <div class="m-back" data-cclose></div>
+  <div class="m-panel">
+    <button class="m-close" type="button" data-cclose aria-label="Zavřít (Esc)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <div class="ct-in" id="ctIn"></div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   VARS BRNO a.s. (člen skupiny VINCI Energies) · personalizovaná AI mapa
+   pro obchodního ředitele. Fakta z veřejných zdrojů: web vars.cz, výroční
+   zpráva 2025 (sbírka listin), obchodní rejstřík, registr smluv, psp.cz.
+   Odhady jsou v textu označené a ověří se na úvodním workshopu.
+   Ukázkové výstupy na kartách používají fiktivní zakázky a osoby.
+   ===================================================================== */
+window.XD_CLIENT = {
+  meta: { client: 'VARS BRNO a.s.', titleShort: 'VARS', model: false, badge: 'Připraveno pro VARS BRNO a.s.' },
+
+  vendor: {
+    name: 'XpertDigital',
+    cta: {
+      title: 'Projdeme mapu společně?',
+      text: 'Na workshopu ji doplníme o vaše čísla a vybereme agenty pro pilot.',
+      button: 'Domluvit workshop',
+      buttonShort: 'Workshop',
+      modalTitle: 'Workshop k AI mapě VARS',
+      modalText: 'Za 90 minut projdeme mapu s vaším týmem, doplníme skutečná čísla a vybereme tři agenty pro pilot. Workshop je zdarma a nezavazuje k další spolupráci.'
+    },
+    contact: {
+      name: 'Tomáš Knížek',
+      role: 'XpertDigital',
+      email: 'sales@xpertdigital.com',
+      subject: 'AI mapa VARS · workshop',
+      phone: '+420 733 590 059',
+      web: 'https://xpertdigital.com',
+      webLabel: 'xpertdigital.com',
+      address: 'XDH CEE · Hartigova 49, 130 00 Praha 3'
+    }
+  },
+
+  guideText: 'Nejdřív strategie a AI mozek, pak marketing, tendry, klíčoví zákazníci a smluvní agenda. Delivery a podporu můžete přidat jako modul. Na konci ladění a předání vašemu týmu.',
+
+  agents: {
+    ceo:   { name: 'AI CEO',              role: 'vrchní orchestrátor',               icon: 'ceo' },
+    mkt:   { name: 'AI Marketér',         role: 'role CMO · PR a obsah',             icon: 'mkt' },
+    sales: { name: 'AI Obchodník',        role: 'role CSO · tendry a zákazníci',     icon: 'sales' },
+    prod:  { name: 'AI Delivery manažer', role: 'role COO · projekty a podpora',     icon: 'users' },
+    ops:   { name: 'AI Provozní manažer', role: 'role CFO · smlouvy a reporting',    icon: 'back' },
+    dev:   { name: 'AI Programátor',      role: 'role CTO · aplikace na míru',       icon: 'dev' }
+  },
+
+  /* ---------------- A · Úvod ---------------- */
+  hero: {
+    kicker: 'XpertDigital AI tým · pro obchod VARS BRNO',
+    title: ['Co všechno', 'udělá', 'váš AI tým'],
+    titleAccent: 'za {dur}',
+    lead: 'Šest míst, kde AI tým nejvíc pomůže obchodu VARS.',
+    leadStrong: 'Všechna zapojíme za {dur}.',
+    pains: [
+      { value: '149',    label: 'veřejných zakázek, ve kterých VARS figuruje jako dodavatel', agent: 'AI Obchodník · radar a nabídky',          icon: 'invoice', open: '3.1' },
+      { value: '695',    label: 'záznamů v registru smluv, 171 z nich zveřejnilo ŘSD',       agent: 'AI Obchodník · obnovy a dodatky',         icon: 'users',   open: '4.2' },
+      { value: '27',     label: 'kategorií dopravních dat chce nová ITS směrnice do roku 2028', agent: 'AI Obchodník · legislativní radar',     icon: 'sales',   open: '4.3' },
+      { value: 'NIS2',   label: 'přináší zákazníkům povinné bezpečnostní přílohy pro dodavatele', agent: 'AI Provozní manažer · dotazníky',     icon: 'back',    open: '5.2' },
+      { value: '121 489 km', label: 'naměřil CleveRA Car od roku 2023. Příběh pro PR i obchod', agent: 'AI Marketér · případové studie',       icon: 'mkt',     open: '2.1' },
+      { value: '1. 1. 2027', label: 'začíná povinný BIM u velkých státních a krajských staveb', agent: 'AI Marketér · kampaň pro projektanty',  icon: 'box',     open: '2.4' }
+    ],
+    profile: {
+      art: 'traffic',
+      tag: 'Připraveno pro',
+      name: 'VARS BRNO a.s.',
+      obor: 'Řízení dopravy, správa infrastruktury a BIM · člen skupiny VINCI Energies',
+      facts: [
+        { v: '264 mil. Kč', k: 'tržby 2025' },
+        { v: '33,4 mil. Kč', k: 'provozní výsledek 2025' },
+        { v: '73', k: 'zaměstnanců (průměr 2025)' },
+        { v: '695', k: 'záznamů v registru smluv' },
+        { v: '1995', k: 'založení firmy' },
+        { v: '99,7 %', k: 'tržeb z Česka' }
+      ],
+      note: 'Údaje z výroční zprávy 2025, obchodního rejstříku a registru smluv. **Odhady** v kalkulačce a na kartách jsou označené a upřesníme je na úvodním workshopu. Ukázkové výstupy používají fiktivní zakázky a osoby.'
+    },
+    story: {
+      value: 'AI pro silnice',
+      text: 'VARS učí AI poznat, kde se silnice začne rozpadat. My naučíme AI agenty hlídat tendry, skládat nabídky a psát reporty, aby vašim lidem zbyl čas na zákazníky.',
+      tag: 'Stejný princip jako u vás: poslední slovo patří lidem'
+    },
+    feedTitle: 'Ukázka · AI tým VARS v běžném dni',
+    feedStart: 418,
+    feed: [
+      { agent: 'ceo',   text: 'Ranní přehled pro obchodního ředitele: 3 nové zakázky, 2 obnovy smluv, 1 dotazník NIS2.' },
+      { agent: 'sales', text: 'Nová zakázka správy silnic „Pasport a geoportál“: shoda s portfoliem 86 %, lhůta 21 dní.' },
+      { agent: 'sales', text: 'Zadávací dokumentace (214 stran) shrnuta za 6 minut, 5 dotazů k vysvětlení připraveno.' },
+      { agent: 'ops',   text: 'Bezpečnostní dotazník NIS2 vyplněn z AI mozku na 82 %, zbytek čeká na IT.' },
+      { agent: 'mkt',   text: 'Návrh tiskové zprávy k milníku CleveRA Car připraven ke schválení.' },
+      { agent: 'sales', text: 'Matice souladu: 118 požadavků, 111 pokrytých referencemi a dokumentací.' },
+      { agent: 'ops',   text: 'Měsíční report pro vedení a skupinu sestaven, čeká na komentář ředitele.' },
+      { agent: 'sales', text: 'Za 60 dní končí servisní období jedné smlouvy: úkol pro key account manažera.' }
+    ]
+  },
+
+  /* ---------------- B · Kalkulačka ---------------- */
+  calc: {
+    title: 'Jaký to bude mít dopad na čísla VARS?',
+    lead: 'Výchozí bod je výroční zpráva 2025. Zapněte oblasti, kterým věříte, a posuňte, o kolik se zlepší.',
+    disclaimer: 'Tržby a provozní výsledek jsou z výroční zprávy 2025, ostatní vstupy jsou odhad. Je to výpočet, ne příslib. Na workshopu ho přepočítáme s vašimi čísly.',
+    howText: 'Provozní výsledek = tržby × příspěvek zakázek − fixní náklady + ušetřený čas. Tržby rostou s počtem podaných nabídek i s jejich úspěšností. Ušetřený čas počítáme cenou hodiny z osobních nákladů (117,3 mil. Kč / 73 lidí ≈ 920 Kč/h).',
+    targetLabel: 'Ilustrativní cíl: +20 %',
+    eurRate: 25,
+    target: 40.1e6,
+    base: { revenue: 264.3e6, grossMargin: 0.30, variableCosts: 0, fixedCosts: 45.89e6 },
+    assumptions: [
+      ['Tržby 2025 (VZ)', '264,3 mil. Kč'],
+      ['Provozní výsledek 2025 (VZ)', '33,4 mil. Kč'],
+      ['Příspěvek z dodatečných tržeb (odhad)', '30 %'],
+      ['Podaných nabídek ročně (odhad)', '40'],
+      ['Úspěšnost nabídek (odhad)', '35 %'],
+      ['Cena hodiny z osobních nákladů', '≈ 920 Kč'],
+      ['Smlouvy, dotazníky, reporting (odhad)', '10 000 h ročně'],
+      ['Dokumentace, podpora, školení (odhad)', '16 000 h ročně']
+    ],
+    areas: [
+      { agent: 'ceo', title: 'AI Strategické boostery', short: 'Strategie', items: ['Portfolio a ceny', 'Centrální AI mozek', 'Ranní přehled'], arrows: ['↑ lepší cenotvorba', '↑ méně nevyfakturované práce', '↑ vyšší marže'],
+        sliderLabel: 'Vyšší příspěvek zakázek', lever: 'margin', max: 0.10, default: 0.02,
+        display: { label: 'Příspěvek zakázek (odhad)', base: 30, unit: '%', dec: 1 }, sub: 'Kalkulace nabídek podle skutečných nákladů podobných zakázek' },
+      { agent: 'sales', title: 'AI Tendrové boostery', short: 'Tendry', items: ['Tendrový radar', 'Analýza ZD', 'Matice souladu'], arrows: ['↑ víc podaných nabídek', '↑ méně přesčasů', '↑ víc tržeb'],
+        sliderLabel: 'Víc podaných nabídek', lever: 'revenue', max: 0.30, default: 0.05,
+        display: { label: 'Nabídek ročně (odhad)', base: 40 }, sub: '+{rev} tržeb ročně při stejné úspěšnosti' },
+      { agent: 'sales', title: 'AI Obchodní boostery a CRM', short: 'Úspěšnost', items: ['Klíčoví zákazníci', 'Obnovy a dodatky', 'Legislativní radar'], arrows: ['↑ vyšší úspěšnost', '↑ víc navazujících zakázek', '↑ nové segmenty'],
+        sliderLabel: 'Vyšší úspěšnost nabídek', lever: 'revenue', max: 0.30, default: 0.05,
+        display: { label: 'Úspěšnost nabídek (odhad)', base: 35, unit: '%', dec: 1 }, sub: '+{rev} tržeb ročně' },
+      { agent: 'ops', title: 'AI Back-office boostery', short: 'Back-office', items: ['Smlouvy a dodatky', 'Dotazníky NIS2', 'Reporting'], arrows: ['↓ méně ruční práce', '↑ rychlejší odpovědi zákazníkům', '↑ čas na obchod'],
+        sliderLabel: 'Méně času na administrativu', lever: 'cost', pool: 9.2e6, hoursPool: 192, max: 0.50, default: 0.20,
+        display: { label: 'Hodin ročně (odhad)', base: 10000, unit: 'h', dir: -1 }, sub: 'Úspora {money} ročně · až {hours} h týdně zpět' },
+      { agent: 'prod', title: 'AI Delivery boostery', short: 'Delivery', items: ['Podpora 24/7', 'Dokumentace', 'Školení zákazníků'], arrows: ['↓ méně rutiny', '↑ rychlejší podpora', '↑ víc kapacity na projekty'],
+        sliderLabel: 'Méně času na rutinu v delivery', lever: 'cost', pool: 14.7e6, hoursPool: 308, max: 0.40, default: 0.15, module: 6, moduleNote: 'Volitelný modul · +2 týdny programu',
+        display: { label: 'Hodin ročně (odhad)', base: 16000, unit: 'h', dir: -1 }, sub: 'Úspora {money} ročně · až {hours} h týdně zpět' }
+    ]
+  },
+
+  /* ---------------- C · Co bude hotové ---------------- */
+  deliver: {
+    title: 'Co přesně budete mít za {dur} hotové?',
+    lead: 'AI tým pro obchod a zázemí VARS: od tendrů přes klíčové zákazníky po smlouvy a reporting. V prostředí Microsoft 365, které skupina VINCI používá.',
+    columns: [
+      { area: 'Strategie a data', lanes: [1], agent: 'ceo', items: ['AI CEO a ranní přehled obchodu', 'Firemní DNA VARS', 'Portfolio a tržby podle segmentů', 'Centrální AI mozek s referencemi', 'Pravidla bezpečnosti a skupiny VINCI', 'Plán pilotu na 3 měsíce'] },
+      { area: 'Marketing', lanes: [2], agent: 'mkt', items: ['Tiskové zprávy z projektů', 'Plán odborného obsahu', 'LinkedIn za odborníky VARS', 'Případové studie z referencí', 'Kampaň BIM 2027'] },
+      { area: 'Tendry a CRM', lanes: [3, 4], agent: 'sales', items: ['Tendrový radar s hodnocením shody', 'Analýza zadávací dokumentace', 'Matice souladu a technická část', 'Reference a kvalifikace z AI mozku', 'Go / no-go a kontrola ceny', 'Mapa zákazníků a příležitostí', 'Hlídání obnov a dodatků', 'Legislativní radar', 'Brief před jednáním'] },
+      { area: 'Back-office a smlouvy', lanes: [5], agent: 'ops', items: ['Evidence smluv, dodatků a objednávek', 'Dotazníky a přílohy NIS2', 'Měsíční reporting pro vedení a skupinu', 'Subdodávky a konsorcia', 'Fakturace podle milníků'] },
+      { area: 'Delivery (volitelný modul)', lanes: [6], agent: 'prod', items: ['Třídění tiketů podpory 24/7', 'Dokumentace a release notes', 'Materiály pro školení zákazníků', 'Kapacity lidí na projektech'] },
+      { area: 'Aplikace na míru', lanes: [7], agent: 'dev', items: ['Dashboard obchodního ředitele', 'Knihovna nabídek a referencí', 'Asistent obchodu v Teams'] },
+      { area: 'Ladění a předání', lanes: [8], agent: 'ceo', items: ['Report přínosů po nasazení', 'Doladění agentů', 'Školení AI championů', 'Předání a plán na další čtvrtletí'] }
+    ]
+  },
+
+  /* ---------------- D · Co potřebujete ---------------- */
+  needs: {
+    title: 'Jak bychom začali?',
+    pills: ['Workshop', 'Pilot', 'Provoz'],
+    lead: 'Prvních {weeks} nasazení a ladění s konzultanty XpertDigital, pak provoz a rozvoj. Začínáme workshopem, který nic nestojí.',
+    during: 'pilot s konzultanty',
+    after: 'provoz, měření a nové boostery',
+    products: [
+      { name: 'Úvodní workshop', term: '90 minut', sub: 'zdarma · s obchodním ředitelem a týmem', items: ['Projdeme mapu a doplníme skutečná čísla', 'Vybereme 3 agenty pro pilot', 'Ověříme data a systémy (CRM, SharePoint, účetnictví)', 'Domluvíme pravidla s IT a skupinou'] },
+      { name: 'AI Transformační program', term: '{dur}', sub: '{weeks} · pilot s konzultanty', highlight: true, items: ['Nasazení agentů krok za krokem', 'Každý týden workshop s vaším týmem', 'Napojení na Microsoft 365, CRM a zdroje zakázek', 'Ladění, měření přínosů a předání týmu', 'Konzultanti se zkušeností z KPMG, SAP, Oracle a IBM'] },
+      { name: 'Provoz, bezpečnost a rozvoj', term: '12 měsíců', sub: 'po pilotu · podpora a měření', items: ['Měsíční review výsledků s partnerem', 'Monitoring agentů a auditní log', 'Podklady pro prověrku dodavatele ve skupině VINCI', 'Nové boostery podle priorit'] }
+    ],
+    cta: { title: 'Projdeme mapu společně?', text: 'Workshop zabere 90 minut a je zdarma. Odnesete si výběr agentů pro pilot a přepočítanou kalkulačku.' }
+  },
+
+  weeksIntro: {
+    chip: 'Co za vás AI tým udělá',
+    title: 'Ochutnávka: {n} AI boosterů pro VARS',
+    lead: 'Každý postavený na veřejných údajích o VARS a na tom, jak se prodává veřejnému sektoru. Klikněte na kartu a uvidíte výstup.'
+  },
+  weeksEnd: {
+    kicker: 'Hotovo?',
+    title: 'Teď si spočítejte dopad',
+    text: 'Vraťte se do kalkulačky a zapněte oblasti, kterým věříte. Nebo si domluvte workshop a projdeme mapu s vaším týmem.'
+  },
+
+  /* ---------------- Fáze ---------------- */
+  weeks: [
+    /* ===== FÁZE 1 · TÝDEN 1 ===== */
+    {
+      n: 1, short: 'Strategie', title: 'Strategie, data a AI mozek', agent: 'ceo', booster: 'Strategický booster',
+      impact: '1', impactLabel: 'zdroj pravdy pro celý tým', arrows: ['↑ jednotný příběh', '↑ data na jednom místě', '↑ rozhodování nad čísly'],
+      cards: [
+        {
+          id: '1.1', title: 'Kdo je VARS · Firemní DNA',
+          desc: 'Zdroj pravdy o firmě, ze kterého čerpají všichni agenti: čím se VARS liší, pro koho je a jak mluví.',
+          prompt: 'Z webu, tiskových zpráv a rozhovoru s vedením vytvoř Firemní DNA VARS.',
+          booster: { skill: 'company-dna' },
+          output: [
+            { type: 'fields', rows: [
+              ['Kategorie', 'Systémy pro řízení dopravy a dohled nad ní, hospodaření s dopravní infrastrukturou a projektování s BIM a digitálním dvojčetem.'],
+              ['Poslání', '„Vytváříme systémy pro řízení dopravy a dohled nad ní.“ (vars.cz)'],
+              ['USP', 'Celý řetězec od dat po rozhodnutí: měřicí vůz CleveRA Car, systém CleveRA, dispečinky a řídicí scénáře. Reference na celostátní úrovni (NDIC, SHV, IS DTM).'],
+              ['Zákazníci', 'ŘSD, krajské správy silnic, velká města a jejich správci komunikací, vodní cesty, energetika.'],
+              ['Zázemí', 'Brněnská firma od roku 1995, od roku 2014 ve skupině VINCI Energies. Přes 80 lidí.'],
+              ['Hlas značky', 'Věcný, datový, technicky přesný. Mluví o přínosu pro správce a řidiče, ne o technologii samotné.'],
+              ['Ukázkové věty', '„Na začátku každého řešení jsou data.“ · „Zjednodušujeme práci těm, kteří musejí rozhodovat.“ (vars.cz)']
+            ] },
+            { type: 'callout', label: 'Doplníme na workshopu', text: 'Priority obchodu na rok 2027, segmenty s největším růstem a jak chcete, aby VARS vnímali krajští správci.' }
+          ]
+        },
+        {
+          id: '1.2', title: 'Portfolio a tržby · kde růst',
+          desc: 'Struktura tržeb z výroční zprávy a velké smlouvy z registru. Z toho AI CEO skládá priority obchodu.',
+          prompt: 'Rozeber tržby a smlouvy VARS a navrhni, kde má obchod růst.',
+          booster: { skill: 'portfolio-analyst' },
+          output: [
+            { type: 'bars', title: 'Tržby 2025 podle typu (mil. Kč, výroční zpráva)', items: [
+              { l: 'Projekty', v: 176.9, f: '176,9' },
+              { l: 'Servis', v: 54.7, f: '54,7', tone: 'dark' },
+              { l: 'Software (CAD)', v: 30.6, f: '30,6', tone: 'muted' }
+            ] },
+            { type: 'checklist', title: 'Co z toho plyne (návrh)', items: [
+              { t: '**Servis po projektech**: každá implementace (např. DIC Ostrava, servis od 7/2026) je základ dlouhodobé servisní smlouvy. Agent hlídá, aby žádná nezůstala bez nabídky.' },
+              { t: '**Kraje a města rostou**: geoportály a systémy správy silnic pro kraje přinesly přes 100 mil. Kč. Zbytek krajů je přirozený další trh.' },
+              { t: '**Závislost na ŘSD**: 171 záznamů v registru smluv. Rozložení rizika do dalších segmentů je úkol pro obchod.', s: 'warn' },
+              { t: '**Železnice a energetika**: výroční zprávy je uvádějí jako směr rozšíření nabídky.' }
+            ] }
+          ]
+        },
+        {
+          id: '1.3', title: 'Centrální AI mozek VARS',
+          desc: 'Jedno místo, kde agenti najdou reference, zadávací dokumentace, smlouvy, životopisy a produktovou dokumentaci. Nic se nehledá dvakrát.',
+          prompt: '(automaticky) zapisuje se s každým výstupem',
+          booster: { skill: 'ai-brain' },
+          output: [
+            { type: 'table', title: 'Co AI mozek ví', cols: ['Zdroj', 'Obsah'], rows: [
+              ['Reference', 'NDIC, SHV, IS DTM, FCD, geoportály, dopravní informační centra'],
+              ['Nabídky a ZD', 'podané nabídky, zadávací dokumentace, dotazy a odpovědi'],
+              ['Smlouvy', 'smlouvy, dodatky a objednávky (i z registru smluv)'],
+              ['Lidé', 'životopisy, certifikace a role pro kvalifikaci'],
+              ['Produkty', 'dokumentace CleveRA, telematika, BIM služby, ceníky'],
+              ['Bezpečnost', 'politiky, certifikáty a vyplněné dotazníky zákazníků']
+            ] },
+            { type: 'checklist', title: 'Bezpečnost a pravidla skupiny VINCI', items: [
+              'Běží v Microsoft 365 a navazuje na Copilot, který skupina VINCI používá.',
+              'Data zůstávají v EU a nepoužívají se k trénování modelů.',
+              'Role a oprávnění: agent vidí jen to, co vidí jeho uživatel.',
+              'Nabídky, ceny a odpovědi zákazníkům vždy schvaluje člověk. Auditní log u všeho.',
+              'Podklady pro prověrku dodavatele ve skupině (etika, bezpečnost, ochrana dat).'
+            ] }
+          ]
+        },
+        {
+          id: '1.4', title: 'AI CEO · ranní přehled obchodu',
+          desc: 'Každé ráno v 7:00 jedna zpráva v Teams: nové zakázky, lhůty, obnovy smluv a co čeká na schválení.',
+          prompt: '(automaticky) AI CEO se ozve každé ráno v 7:00',
+          booster: { skill: 'ceo-orchestrator' },
+          output: [
+            { type: 'chat', channel: 'AI CEO · Microsoft Teams', sub: 'ukázka · kanál obchodního ředitele', icon: 'ceo', compact: 2, messages: [
+              { name: 'AI CEO', t: '7:00', text: 'Dobré ráno. Tři věci na dnes:' },
+              { name: 'AI CEO', t: '7:00', text: '1) Nová zakázka krajské správy silnic na pasport a geoportál, shoda 86 %, lhůta 21 dní. Doporučuji jít do toho.\n2) Za 60 dní končí servisní období jedné smlouvy. Návrh prodloužení je připravený.\n3) Dotazník NIS2 od zákazníka je vyplněný na 82 %, 6 otázek čeká na IT.' },
+              { side: 'r', t: '7:12', text: 'Do geoportálu jdeme. Prodloužení pošli ke kontrole account manažerovi.' },
+              { name: 'AI CEO', t: '7:12', text: 'Hotovo. Tým nabídky má úkoly a harmonogram, analýza ZD bude v 9:00.' }
+            ] }
+          ]
+        }
+      ]
+    },
+
+    /* ===== FÁZE 2 · TÝDEN 2 ===== */
+    {
+      n: 2, short: 'Marketing', title: 'PR, obsah a kampaně', agent: 'mkt', booster: 'Marketingový booster',
+      impact: '4', impactLabel: 'kanály s jedním příběhem', arrows: ['↑ viditelnost u správců', '↑ důvěra v zakázkách', '↑ víc poptávek'],
+      cards: [
+        {
+          id: '2.1', title: 'Tiskové zprávy z projektů a dat',
+          desc: 'VARS vydává tiskové zprávy pravidelně. AI Marketér je připraví z milníků projektů a z dat, která už máte.',
+          prompt: 'Připrav tiskovou zprávu k milníku měření CleveRA Car.',
+          booster: { skill: 'press-writer' },
+          output: [
+            { type: 'emails', items: [
+              { label: 'Návrh tiskové zprávy', channel: 'Ke schválení · komunikace VARS', subject: 'CleveRA Car má za sebou přes 120 tisíc kilometrů měření', body: [
+                '**Brno, [datum].** Měřicí vůz CleveRA Car společnosti VARS BRNO naměřil od roku 2023 více než 121 tisíc kilometrů silnic, z toho 72 tisíc pro Ředitelství silnic a dálnic.',
+                'Data slouží správcům komunikací k plánování oprav a údržby. [Citace odborníka VARS o tom, co data ukazují.]',
+                '[Odstavec o přínosu pro správce: přesnější plán oprav, delší životnost vozovek.]',
+                'O VARS BRNO: [standardní odstavec z Firemní DNA].'
+              ] }
+            ] },
+            { type: 'callout', tone: 'grey', label: 'Zdroj čísel', text: 'Kilometry podle tiskové zprávy VARS o CleveRA Car EVO. AI Marketér čísla nikdy nevymýšlí, bere je z AI mozku a označí, co je potřeba doplnit.' }
+          ]
+        },
+        {
+          id: '2.2', title: 'Odborný obsah a LinkedIn',
+          desc: 'Témata, která teď řeší správci komunikací: nová dopravní data, NIS2, BIM 2027. Plán obsahu na měsíc a příspěvky za odborníky VARS.',
+          prompt: 'Navrhni plán odborného obsahu na říjen podle toho, co řeší správci silnic.',
+          booster: { skill: 'content-scout + social-post-writer' },
+          output: [
+            { type: 'table', title: 'Plán obsahu na říjen', cols: ['Týden', 'Formát', 'Téma'], compactCols: [1, 2], rows: [
+              ['1', 'Článek', 'Novela zákona o silničním provozu: jaká data budou správci dodávat'],
+              ['1', 'LinkedIn', 'Co znamená 27 kategorií dat z ITS směrnice pro kraj'],
+              ['2', 'Webinář', 'NIS2 u řízení dopravy: co čekat od dodavatelů'],
+              ['3', 'Článek', 'BIM od 1. 1. 2027: kdo musí a co to znamená pro projekt'],
+              ['4', 'Případová studie', 'Digitální správa silnic na Vysočině (karta 2.3)']
+            ] }
+          ]
+        },
+        {
+          id: '2.3', title: 'Případové studie z referencí',
+          desc: 'Z každé dokončené zakázky jedna studie: výzva, řešení, výsledek. Pro web, nabídky i obchodní jednání.',
+          prompt: 'Připrav případovou studii k systému pro KSÚS Vysočiny.',
+          booster: { skill: 'case-study-writer' },
+          output: [
+            { type: 'fields', rows: [
+              ['Zákazník', 'Krajská správa a údržba silnic Vysočiny'],
+              ['Výzva', 'Evidence majetku v tabulkách a různých systémech, složité plánování oprav.'],
+              ['Řešení', 'Digitální systém správy silnic INFRA-FIM od VARS (podle tiskové zprávy VARS).'],
+              ['Financování', 'Projekt za zhruba 40 mil. Kč, přes 30 mil. Kč z programu IROP.'],
+              ['Výsledek', '[Doplníme se zákazníkem: úspora času, přesnější plán oprav.]'],
+              ['Citace', '[Vyžádáme od zákazníka, agent připraví návrh ke schválení.]']
+            ] }
+          ]
+        },
+        {
+          id: '2.4', title: 'Kampaň BIM 2027',
+          desc: 'Od 1. 1. 2027 platí povinný informační model u velkých staveb státu a krajů. Kampaň pro investory a projektanty, kteří budou potřebovat BIM služby a software.',
+          prompt: 'Připrav kampaň k povinnému BIM od roku 2027 pro investory a projektanty.',
+          booster: { skill: 'email-campaigns + landing-builder' },
+          output: [
+            { type: 'steps', title: 'Kampaň na 6 týdnů', items: [
+              { t: 'T1', title: 'Článek a landing page', text: 'Co přesně ukládá zákon 330/2025 Sb. a od kdy (1. 1. 2027).' },
+              { t: 'T2', title: 'E-mail investorům', text: 'Kraje a správci staveb: co připravit do zadávací dokumentace.' },
+              { t: 'T3', title: 'E-mail projektantům', text: 'Software a školení (Bentley, Transoft) a služby projektování s BIM.' },
+              { t: 'T4', title: 'Webinář', text: 'Datový standard pro dopravní stavby v praxi.' },
+              { t: 'T6', title: 'Follow-up', text: 'Nabídka konzultace pro ty, kdo se zaregistrovali.' }
+            ] }
+          ]
+        }
+      ]
+    },
+
+    /* ===== FÁZE 3 · TÝDNY 3–4 ===== */
+    {
+      n: 3, short: 'Tendry', len: 2, title: 'Tendry a nabídky', agent: 'sales', booster: 'Prodejní booster',
+      impact: '+10 %', impactLabel: 'podaných nabídek', arrows: ['↑ nic neuteče', '↑ rychlejší nabídky', '↑ víc času na řešení'],
+      cards: [
+        {
+          id: '3.1', title: 'Tendrový radar',
+          desc: 'Každé ráno přehled nových zakázek z NEN, profilů zadavatelů a TED. Každá má skóre shody s portfoliem a doporučení.',
+          prompt: 'Každé ráno mi pošli nové zakázky, které se hodí pro VARS, se skóre shody.',
+          booster: { skill: 'tender-radar' },
+          output: [
+            { type: 'table', title: 'Ukázka ranního přehledu (fiktivní zakázky)', cols: ['Zakázka', 'Zadavatel', 'Hodnota', 'Lhůta', 'Shoda'], num: [2], compactCols: [0, 4], rows: [
+              ['Pasport silnic a geoportál', 'krajská správa silnic', '28 mil. Kč', '21 dní', '✓ 86 %'],
+              ['Rozšíření dopravního informačního centra', 'statutární město', '45 mil. Kč', '30 dní', '✓ 78 %'],
+              ['Měření stavu vozovek II. a III. třídy', 'krajská správa silnic', '12 mil. Kč', '18 dní', '✓ 74 %'],
+              ['Dodávka kamerového systému', 'obec', '3 mil. Kč', '10 dní', '× 22 %']
+            ], note: 'Hlídá NEN, Věstník, TED a profily zadavatelů. Slovník klíčových slov z portfolia VARS a z minulých nabídek.' }
+          ]
+        },
+        {
+          id: '3.2', title: 'Zadávací dokumentace za 10 minut',
+          desc: 'Dvě stě stran ZD shrnutých na jednu stránku: co chtějí, do kdy, jak hodnotí, co je riskantní a na co se zeptat.',
+          prompt: 'Shrň zadávací dokumentaci a najdi rizika a dotazy k vysvětlení.',
+          booster: { skill: 'tender-analyst' },
+          output: [
+            { type: 'fields', title: 'Ukázka shrnutí (fiktivní zakázka)', rows: [
+              ['Předmět', 'Pasport silnic II. a III. třídy a geoportál pro správu majetku, 5 let servisu.'],
+              ['Lhůty', 'Dotazy do 7 dnů, nabídka do 21 dnů, implementace 10 měsíců.'],
+              ['Kvalifikace', '2 reference nad 20 mil. Kč za 5 let, projektový manažer s 5 lety praxe, GIS specialista.'],
+              ['Hodnocení', 'Cena 60 %, kvalita řešení 30 %, lhůta 10 %.'],
+              ['Rizika', 'Smluvní pokuta 0,5 % denně, neomezená odpovědnost za data, licence k datům na zadavatele.'],
+              ['Dotazy k vysvětlení', 'Formát předání dat · rozsah migrace · SLA servisu · limit odpovědnosti · vlastnictví licencí']
+            ] }
+          ]
+        },
+        {
+          id: '3.3', title: 'Matice souladu a technická část',
+          desc: 'Každý požadavek ze ZD má v nabídce odpověď a místo. AI připraví první verzi technické části z AI mozku.',
+          prompt: 'Připrav matici souladu a první verzi technické části nabídky.',
+          booster: { skill: 'bid-writer' },
+          output: [
+            { type: 'table', title: 'Matice souladu (výřez)', cols: ['Požadavek', 'Kde v nabídce', 'Zdroj', 'Stav'], compactCols: [0, 3], rows: [
+              ['Webový geoportál s veřejnou a interní částí', 'kap. 3.2', 'reference geoportálů', '✓ pokryto'],
+              ['Import pasportu z měřicího vozu', 'kap. 3.4', 'dokumentace CleveRA', '✓ pokryto'],
+              ['Napojení na krajskou GIS infrastrukturu', 'kap. 3.6', 'minulé nabídky', '! ověřit rozhraní'],
+              ['Servis 24/7 s reakcí do 4 hodin', 'kap. 5.1', 'SLA servisu', '✓ pokryto'],
+              ['Školení 40 uživatelů', 'kap. 6', 'školicí plán', '✓ pokryto']
+            ], note: '118 požadavků, 111 pokrytých, 7 k ověření. Text píše AI, odborníci VARS kontrolují a doplňují.' }
+          ]
+        },
+        {
+          id: '3.4', title: 'Reference a kvalifikace z AI mozku',
+          desc: 'Agent vybere reference podle požadavků ZD. Tady skutečné zakázky VARS z registru smluv.',
+          prompt: 'Najdi reference nad 20 mil. Kč za posledních 5 let pro geoportál a správu silnic.',
+          booster: { skill: 'reference-finder' },
+          output: [
+            { type: 'table', title: 'Vybrané reference (registr smluv, bez DPH)', cols: ['Zakázka', 'Zadavatel', 'Hodnota', 'Rok'], num: [2], compactCols: [0, 2], rows: [
+              ['IS DTM', 'ŘSD', '246,3 mil. Kč', '2023'],
+              ['Konverze NDIC do otevřené architektury', 'ŘSD', '218,7 mil. Kč', '2025'],
+              ['Systém hospodaření s vozovkou', 'ŘSD', '179,1 mil. Kč', '2019–2021'],
+              ['Konverze řídicího systému HDŘÚ a DIC', 'TSK Praha', '134,3 mil. Kč', '2023'],
+              ['Dopravní informační centrum', 'České Budějovice', '121,4 mil. Kč', '2022'],
+              ['Geoportál', 'KSÚS Středočeského kraje', '31,2 mil. Kč', '+ 5 let servisu'],
+              ['Systém INFRA-FIM', 'KSÚS Vysočiny', '23,9 mil. Kč', '—']
+            ], note: 'Agent ke každé referenci připraví osvědčení a popis podle formuláře zadavatele.' }
+          ]
+        },
+        {
+          id: '3.5', title: 'Go / no-go a kontrola ceny',
+          desc: 'Než tým začne psát, agent spočítá, jestli se zakázka vyplatí, a porovná cenu s podobnými zakázkami z registru smluv.',
+          prompt: 'Vyhodnoť go / no-go a navrhni cenové rozpětí.',
+          booster: { skill: 'bid-qualifier' },
+          output: [
+            { type: 'score', title: 'Skóre go / no-go (ukázka)', before: { t: 'Práh', v: 60 }, after: { t: 'Tato zakázka', v: 78 } },
+            { type: 'table', cols: ['Kritérium', 'Hodnocení'], rows: [
+              ['Shoda s portfoliem', '✓ vysoká'],
+              ['Kvalifikace a reference', '✓ splněno'],
+              ['Kapacita týmu v termínu', '! 2 lidé ve střetu s jiným projektem'],
+              ['Smluvní rizika', '! pokuty a odpovědnost (dotaz k vysvětlení)'],
+              ['Cena podobných zakázek', 'rozpětí 24–31 mil. Kč']
+            ] }
+          ]
+        }
+      ]
+    },
+
+    /* ===== FÁZE 4 · TÝDEN 5 ===== */
+    {
+      n: 4, short: 'CRM', title: 'Klíčoví zákazníci a obnovy', agent: 'sales', booster: 'Prodejní booster',
+      impact: '0', impactLabel: 'zapomenutých obnov', arrows: ['↑ víc navazujících zakázek', '↑ nové segmenty', '↓ méně závislosti na jednom zákazníkovi'],
+      cards: [
+        {
+          id: '4.1', title: 'Mapa zákazníků a příležitostí',
+          desc: 'Kdo už s VARS spolupracuje, na čem, a kde je další příležitost. Postaveno z registru smluv a doplněno z CRM.',
+          prompt: 'Udělej mapu zákazníků VARS a navrhni další příležitosti.',
+          booster: { skill: 'account-map' },
+          output: [
+            { type: 'board', title: 'Zákazníci podle segmentu (registr smluv)', cols: [
+              { t: 'Stát', items: [{ t: 'ŘSD', m: '171 záznamů · NDIC, DTM, měření', tone: 'good' }, { t: 'CENDIS', m: 'rámcová dohoda 2024' }] },
+              { t: 'Kraje', items: [{ t: 'KSÚS Vysočiny', m: 'INFRA-FIM', tone: 'good' }, { t: 'KSÚS Středočeského kraje', m: 'geoportál + servis', tone: 'good' }, { t: 'Další kraje', m: 'příležitost: geoportál, správa silnic', tone: 'red' }] },
+              { t: 'Města', items: [{ t: 'TSK Praha', m: 'HDŘÚ a DIC', tone: 'good' }, { t: 'Ostrava, České Budějovice, Jihlava', m: 'DIC a řízení dopravy', tone: 'good' }, { t: 'Další statutární města', m: 'příležitost: data podle novely', tone: 'red' }] },
+              { t: 'Nové segmenty', items: [{ t: 'Železnice', m: 'směr z výroční zprávy', tone: 'warn' }, { t: 'Energetika', m: 'projektování a správa majetku', tone: 'warn' }] }
+            ] }
+          ]
+        },
+        {
+          id: '4.2', title: 'Hlídání obnov, dodatků a servisních fází',
+          desc: 'Ke každé smlouvě agent sleduje konec plnění, servisní období a možnost dodatku. Obchod se o obnově dozví včas, ne z věstníku.',
+          prompt: 'Projdi smlouvy a řekni mi, co končí nebo se mění v příštích 18 měsících.',
+          booster: { skill: 'renewal-radar' },
+          output: [
+            { type: 'table', title: 'Co se blíží (veřejné údaje)', cols: ['Smlouva', 'Co se děje', 'Doporučení'], compactCols: [0, 1], rows: [
+              ['DIC Ostrava', 'implementace do 7/2026, pak 2 roky servisu', 'hlídat SLA, připravit rozšíření'],
+              ['Měření vozovek pro ŘSD 2023–2027', 'plnění končí 2027', 'připravit se na navazující zakázku'],
+              ['IS DTM ŘSD', 'dodatek č. 10 v 6/2026', 'sledovat další rozvojové požadavky'],
+              ['Geoportál KSÚS Středočeského kraje', '5 let servisu', 'nabídnout další moduly'],
+              ['Rámcová dohoda CENDIS', 'minitendry v průběhu dohody', 'hlídat každou výzvu']
+            ], note: 'Data z výroční zprávy 2025 a registru smluv. Agent doplní interní termíny z vašeho CRM.' }
+          ]
+        },
+        {
+          id: '4.3', title: 'Legislativní radar: nová dopravní data',
+          desc: 'Novela zákona o silničním provozu (tisk 83) ukládá správcům komunikací dodávat dopravní data. Agent z toho udělá seznam příležitostí a oslovení.',
+          prompt: 'Co znamená novela zákona o silničním provozu pro naše zákazníky a koho oslovit?',
+          booster: { skill: 'regulatory-radar' },
+          output: [
+            { type: 'steps', title: 'Co novela přináší (stav k 29. 9. 2026)', items: [
+              { t: '23. 9.', title: 'Sněmovna schválila tisk 83', text: 'Novela zákona 361/2000 Sb. převádí ITS směrnici (EU) 2023/2661. Teď jde do Senátu.' },
+              { t: 'ŘSD', title: 'Celostátní dopravní informační systém', text: 'ŘSD se stává jeho správcem.' },
+              { t: 'Správci', title: 'Povinnost dodávat data', text: 'Úpravy provozu a parkoviště, jinak hrozí přestupek.' },
+              { t: '2026–28', title: 'Zastávky veřejné dopravy', text: 'Od konce 2026 v 10 městských uzlech, od konce 2028 v celé ČR.' }
+            ] },
+            { type: 'callout', label: 'Příležitost pro obchod', text: 'Kraje a města budou potřebovat data sbírat a předávat. Agent připraví seznam správců, jejich současné systémy a sekvenci oslovení.' }
+          ]
+        },
+        {
+          id: '4.4', title: 'Brief před jednáním a follow-up',
+          desc: 'Před schůzkou jedna stránka: co u zákazníka běží, co řeší, čím začít. Po schůzce zápis a follow-up do CRM.',
+          prompt: 'Připrav brief na jednání s krajskou správou silnic a follow-up po schůzce.',
+          booster: { skill: 'sales-scout' },
+          output: [
+            { type: 'fields', title: 'Ukázka briefu (fiktivní zákazník)', rows: [
+              ['Zákazník', 'Krajská správa silnic, zatím bez systému správy majetku od VARS.'],
+              ['Co řeší', 'Novela o dopravních datech, plán oprav z omezeného rozpočtu, NIS2.'],
+              ['Rozpočet', 'Silnice II. a III. třídy v roce 2026 bez plošného příspěvku SFDI, peníze jen na vybrané projekty.'],
+              ['Čím začít', 'Případová studie z Vysočiny a financování z IROP.'],
+              ['Otázky', 'Kdo u vás rozhoduje o datech? Jak dnes plánujete opravy? Kdy chystáte zakázku?']
+            ] }
+          ]
+        }
+      ]
+    },
+
+    /* ===== FÁZE 5 · TÝDNY 6–8 ===== */
+    {
+      n: 5, short: 'Back-office', len: 3, title: 'Smlouvy, dotazníky a reporting', agent: 'ops', booster: 'Provozní booster',
+      impact: '−20 %', impactLabel: 'času na administrativu', arrows: ['↓ méně ruční práce', '↑ rychlejší odpovědi zákazníkům', '↑ čas na obchod'],
+      cards: [
+        {
+          id: '5.1', title: 'Smlouvy, dodatky a objednávky',
+          desc: 'Stovky smluv, dodatků a dílčích objednávek. Agent je čte, eviduje povinnosti a hlídá termíny, milníky a sankce.',
+          prompt: 'Založ evidenci povinností ze smluv a hlídej termíny.',
+          booster: { skill: 'contract-register' },
+          output: [
+            { type: 'table', title: 'Ukázka evidence (fiktivní smlouvy)', cols: ['Smlouva', 'Povinnost', 'Termín', 'Stav'], compactCols: [1, 3], rows: [
+              ['Servis DIC', 'měsíční report dostupnosti', '5. 10.', '✓ připraveno'],
+              ['Geoportál kraje', 'akceptace etapy 2', '14. 10.', '! čeká na zákazníka'],
+              ['Měření vozovek', 'předání dat za září', '20. 10.', '✓ v plánu'],
+              ['Rámcová dohoda', 'odpověď na minitendr', '9. 10.', '× 3 dny do lhůty']
+            ] }
+          ]
+        },
+        {
+          id: '5.2', title: 'Dotazníky a přílohy NIS2',
+          desc: 'Zákazníci VARS řídí provoz na pozemních komunikacích a ITS, a spadají pod NIS2. Po dodavatelích chtějí dotazníky a smluvní přílohy. Agent je vyplní z AI mozku.',
+          prompt: 'Vyplň bezpečnostní dotazník zákazníka z našich politik a dřívějších odpovědí.',
+          booster: { skill: 'security-questionnaire' },
+          output: [
+            { type: 'table', title: 'Ukázka dotazníku', cols: ['Otázka', 'Odpověď z AI mozku', 'Stav'], compactCols: [0, 2], rows: [
+              ['Řízení přístupu k systémům zákazníka', 'politika přístupů, MFA, pravidelná revize', '✓ vyplněno'],
+              ['Hlášení kybernetických incidentů', 'postup a lhůty z interní směrnice', '✓ vyplněno'],
+              ['Právo zákazníka na audit', 'standardní smluvní doložka', '✓ vyplněno'],
+              ['Subdodavatelé s přístupem k datům', 'seznam z evidence subdodávek', '! doplnit 2 firmy'],
+              ['Zálohování a obnova', 'plán kontinuity', '! potvrdit IT']
+            ], note: 'Povinné náležitosti smluv s významnými dodavateli určuje vyhláška 409/2025 Sb. (příloha 5). Odpovědi schvaluje odpovědná osoba VARS.' },
+            { type: 'kpis', items: [
+              { v: '2 dny → 3 h', l: 'na jeden dotazník (odhad)', tone: 'good' },
+              { v: '82 %', l: 'odpovědí z AI mozku bez úprav (ukázka)' }
+            ] }
+          ]
+        },
+        {
+          id: '5.3', title: 'Měsíční reporting pro vedení a skupinu',
+          desc: 'Objednávky, backlog, marže projektů a výhled. Agent sestaví report z účetnictví a projektového řízení, ředitel doplní komentář.',
+          prompt: 'Sestav měsíční report obchodu a projektů pro vedení a skupinu.',
+          booster: { skill: 'monthly-report' },
+          output: [
+            { type: 'kpis', title: 'Ukázka reportu (modelová čísla)', items: [
+              { v: '31 mil. Kč', l: 'nové objednávky v měsíci', d: '+12 % proti plánu', tone: 'good' },
+              { v: '214 mil. Kč', l: 'backlog' },
+              { v: '9', l: 'nabídek v přípravě' },
+              { v: '3 dny → 4 h', l: 'příprava reportu (odhad)', tone: 'good' }
+            ] }
+          ]
+        },
+        {
+          id: '5.4', title: 'Subdodávky a konsorcia',
+          desc: 'Zhruba 100 mil. Kč ročně jde za službami a subdodávkami, velké zakázky běží ve sdružení. Agent hlídá, aby podmínky partnerů seděly se smlouvou se zákazníkem.',
+          prompt: 'Porovnej smlouvu se subdodavatelem s podmínkami hlavní smlouvy.',
+          booster: { skill: 'back-to-back-check' },
+          output: [
+            { type: 'table', title: 'Ukázka kontroly (fiktivní smlouvy)', cols: ['Podmínka', 'Hlavní smlouva', 'Subdodávka', 'Stav'], compactCols: [0, 3], rows: [
+              ['Smluvní pokuta za prodlení', '0,5 % denně', '0,2 % denně', '! riziko 0,3 %'],
+              ['Záruka', '36 měsíců', '24 měsíců', '× nesedí'],
+              ['Požadavky NIS2', 'příloha 5', 'chybí', '× doplnit'],
+              ['Splatnost', '30 dní', '45 dní', '✓ v pořádku']
+            ] }
+          ]
+        },
+        {
+          id: '5.5', title: 'Fakturace podle milníků',
+          desc: 'Po akceptaci etapy agent připraví fakturu podle smlouvy a hlídá, aby žádná odvedená práce nezůstala nevyfakturovaná.',
+          prompt: 'Připrav fakturace za akceptované milníky a najdi nevyfakturovanou práci.',
+          booster: { skill: 'milestone-billing' },
+          output: [
+            { type: 'checklist', title: 'Ukázka (fiktivní projekty)', items: [
+              { t: 'Etapa 2 geoportálu akceptována 12. 10. → faktura připravena ke schválení.' },
+              { t: 'Vícepráce na integraci: 46 hodin bez objednávky → návrh dodatku.', s: 'warn' },
+              { t: 'Servisní paušál za září vystaven automaticky podle smlouvy.' }
+            ] }
+          ]
+        }
+      ]
+    },
+
+    /* ===== FÁZE 6 · VOLITELNÝ MODUL DELIVERY (+2 TÝDNY) ===== */
+    {
+      n: 6, short: 'Delivery', len: 2, optional: true, on: false,
+      optionalLabel: 'Modul Delivery: projekty a podpora', optionalText: 'Podpora 24/7, dokumentace, školení a kapacity. Přidá do programu 2 týdny.',
+      title: 'Delivery a podpora 24/7', agent: 'prod', booster: 'Delivery booster',
+      impact: '−15 %', impactLabel: 'rutiny v delivery', arrows: ['↑ rychlejší podpora', '↓ méně psaní dokumentace', '↑ kapacita na projekty'],
+      cards: [
+        {
+          id: '6.1', title: 'Podpora 24/7: třídění tiketů',
+          desc: 'Agent roztřídí požadavky, najde podobné případy a navrhne řešení. Technik rozhoduje, agent zapisuje.',
+          prompt: 'Roztřiď noční požadavky podpory a navrhni řešení z minulých případů.',
+          booster: { skill: 'support-triage' },
+          output: [
+            { type: 'table', title: 'Ukázka noční fronty (fiktivní)', cols: ['Požadavek', 'Priorita', 'Návrh'], compactCols: [0, 1], rows: [
+              ['Výpadek dat z detektoru na dálnici', '× vysoká', 'restart sběrné jednotky, postup z případu #1182'],
+              ['Chybný export do geoportálu', '! střední', 'oprava mapování atributů'],
+              ['Dotaz na nový uživatelský účet', '✓ nízká', 'odpověď s návodem']
+            ] }
+          ]
+        },
+        {
+          id: '6.2', title: 'Dokumentace a release notes',
+          desc: 'Z úkolů a změn v kódu agent připraví release notes, aktualizaci uživatelské příručky a předávací dokumentaci.',
+          prompt: 'Připrav release notes a změny v příručce pro novou verzi.',
+          booster: { skill: 'doc-writer' },
+          output: [
+            { type: 'text', title: 'Ukázka release notes', text: ['**Verze 4.2** · Nový export dat o uzavírkách ve formátu pro národní přístupový bod. Rychlejší načítání mapy. Opraveno řazení událostí.', 'Příručka: kapitola 5 doplněna o nový export, 3 snímky obrazovky vyměněny.'] }
+          ]
+        },
+        {
+          id: '6.3', title: 'Školení zákazníků',
+          desc: 'Materiály, testy a krátká videa ke každé verzi. Pro školení uživatelů CleveRA i dispečerských systémů.',
+          prompt: 'Připrav školicí materiály k nové verzi pro uživatele správy silnic.',
+          booster: { skill: 'training-builder' },
+          output: [
+            { type: 'checklist', title: 'Balíček ke školení', items: ['Prezentace na 90 minut', '10 kontrolních otázek', '3 krátká videa s postupy', 'Tahák na jednu stránku'] }
+          ]
+        },
+        {
+          id: '6.4', title: 'Kapacity lidí na projektech',
+          desc: 'Kdo na čem pracuje a kde vzniká střet mezi projekty, servisem a nabídkami.',
+          prompt: 'Ukaž mi vytížení týmů na příštích 8 týdnů a střety s nabídkami.',
+          booster: { skill: 'capacity-planner' },
+          output: [
+            { type: 'bars', title: 'Vytížení týmů (ukázka)', items: [
+              { l: 'Telematika', v: 96, f: '96 %' },
+              { l: 'Správa infrastruktury', v: 82, f: '82 %', tone: 'dark' },
+              { l: 'BIM a projektování', v: 71, f: '71 %', tone: 'muted' }
+            ] }
+          ]
+        }
+      ]
+    },
+
+    /* ===== FÁZE 7 · TÝDNY 9–10 (s modulem 11–12) ===== */
+    {
+      n: 7, short: 'Aplikace', len: 2, title: 'Dashboardy a asistenti na míru', agent: 'dev', booster: 'Programátorský booster',
+      impact: '1', impactLabel: 'obrazovka pro celý obchod', arrows: ['↓ méně Excelu', '↑ přehled v reálném čase', '↑ rychlejší odpovědi'],
+      cards: [
+        {
+          id: '7.1', title: 'Dashboard obchodního ředitele',
+          desc: 'Tendry, nabídky, úspěšnost, backlog a obnovy smluv na jedné obrazovce.',
+          prompt: 'Postav dashboard obchodu nad CRM, tendry a smlouvami.',
+          booster: { skill: 'vibe-builder' },
+          output: [
+            { type: 'browser', url: 'vars.local/obchod', brand: 'VARS', nav: ['Přehled', 'Tendry', 'Zákazníci', 'Smlouvy'], heading: 'Obchod · ukázka', blocks: [
+              { type: 'kpis', items: [
+                { v: '14', l: 'zakázek v radaru' },
+                { v: '9', l: 'nabídek v přípravě' },
+                { v: '38 %', l: 'úspěšnost za 12 měsíců', d: 'modelové číslo' },
+                { v: '5', l: 'obnov do 18 měsíců' }
+              ] },
+              { type: 'spark', label: 'Hodin na jednu nabídku', sub: '**90 h → 40 h** (modelový průběh pilotu)', series: [92, 90, 86, 80, 71, 60, 52, 46, 42, 40], from: 'týden 1', to: 'týden 10' }
+            ] }
+          ]
+        },
+        {
+          id: '7.2', title: 'Knihovna nabídek a referencí',
+          desc: 'Všechny části minulých nabídek, reference a životopisy na jednom místě, s vyhledáváním podle požadavků ZD.',
+          prompt: 'Postav knihovnu nabídek s vyhledáváním podle požadavků.',
+          booster: { skill: 'vibe-builder' },
+          output: [
+            { type: 'table', title: 'Hledání: „geoportál, reference nad 20 mil. Kč“', cols: ['Výsledek', 'Typ', 'Použito'], rows: [
+              ['Geoportál KSÚS Středočeského kraje', 'reference', '4×'],
+              ['Kapitola: architektura geoportálu', 'text nabídky', '6×'],
+              ['GIS specialista', 'životopis', '5×']
+            ] }
+          ]
+        },
+        {
+          id: '7.3', title: 'Asistent obchodu v Teams',
+          desc: 'Rychlé dotazy bez hledání v SharePointu. Odpovídá z AI mozku a vždy ukáže zdroj.',
+          prompt: 'Zpřístupni AI mozek obchodu přes chat v Teams.',
+          booster: { skill: 'teams-assistant' },
+          output: [
+            { type: 'chat', channel: 'Asistent obchodu · Teams', sub: 'ukázka', icon: 'chat', messages: [
+              { side: 'r', t: '10:14', text: 'Máme referenci na dopravní informační centrum pro město nad 100 mil.?' },
+              { name: 'Asistent', t: '10:14', text: 'Ano: Dopravní informační centrum České Budějovice, 121,4 mil. Kč bez DPH (registr smluv, 2022). Osvědčení je v knihovně nabídek.' }
+            ] }
+          ]
+        }
+      ]
+    },
+
+    /* ===== FÁZE 8 · LADĚNÍ A PŘEDÁNÍ (poslední 3 týdny) ===== */
+    {
+      n: 8, short: 'Ladění', len: 3, title: 'Ladění, měření a předání týmu', agent: 'ceo', booster: 'Strategický booster',
+      impact: '100 %', impactLabel: 'předáno vašemu týmu', arrows: ['↑ změřené přínosy', '↑ doladění agenti', '↑ tým, který AI řídí sám'],
+      cards: [
+        {
+          id: '8.1', title: 'Report přínosů po pilotu',
+          desc: 'Stejné ukazatele na začátku a na konci pilotu, změřené v CRM, tendrech a smlouvách.',
+          prompt: 'Porovnej stav na začátku a po pilotu a připrav report pro vedení a skupinu.',
+          booster: { skill: 'impact-report' },
+          output: [
+            { type: 'table', title: 'Na začátku a po pilotu (modelový příklad)', cols: ['Ukazatel', 'Na začátku', 'Po pilotu'], num: [1, 2], rows: [
+              ['Hodin na jednu nabídku', '90 h', '40 h'],
+              ['Podaných nabídek za čtvrtletí', '10', '12'],
+              ['Dotazník NIS2', '2 dny', '3 h'],
+              ['Měsíční report', '3 dny', '4 h'],
+              ['Obnovy zachycené včas', 'podle paměti', '100 %']
+            ], note: 'U vás změříme skutečná čísla na začátku a na konci pilotu.' }
+          ]
+        },
+        {
+          id: '8.2', title: 'Doladění agentů podle zpětné vazby',
+          desc: 'Každý týden sbíráme připomínky obchodu, projektových manažerů a back-office a agenty upravíme.',
+          prompt: 'Shrň zpětnou vazbu týmu a navrhni úpravy agentů.',
+          booster: { skill: 'agent-tuning' },
+          output: [
+            { type: 'table', title: 'Připomínky a úpravy (ukázka)', cols: ['Připomínka', 'Úprava'], rows: [
+              ['Radar posílá i malé zakázky', 'Práh 5 mil. Kč a vyřazení dodávek hardwaru'],
+              ['Technická část je moc obecná', 'Víc textů z minulých vítězných nabídek'],
+              ['Dotazníky mají různé formáty', 'Import z Excelu i PDF']
+            ] }
+          ]
+        },
+        {
+          id: '8.3', title: 'Školení a předání týmu',
+          desc: 'AI tým pak řídí vaši lidé. Navazujeme na AI školení, které skupina VINCI zavádí.',
+          prompt: 'Připrav předávací balíček a plán školení pro VARS.',
+          booster: { skill: 'handover-kit' },
+          output: [
+            { type: 'checklist', title: 'Předávací balíček', items: [
+              '3 AI championi (obchod, projekty, back-office).',
+              'Provozní příručka: co který agent dělá a kdo schvaluje.',
+              'Role a oprávnění předané IT.',
+              'Měsíční review výsledků s partnerem XpertDigital.'
+            ] }
+          ]
+        },
+        {
+          id: '8.4', title: 'Plán na další čtvrtletí',
+          desc: 'Další agenti seřazení podle přínosu a náročnosti. Vedení vybere, AI CEO rozplánuje.',
+          prompt: 'Navrhni plán dalších agentů podle přínosu a náročnosti.',
+          booster: { skill: 'roadmap-planner' },
+          output: [
+            { type: 'table', title: 'Návrh', cols: ['Agent', 'Přínos', 'Náročnost'], rows: [
+              ['Modul Delivery: podpora a dokumentace', { t: 'vysoký', tone: 'ok' }, '2 týdny'],
+              ['Obchod v železnici a energetice', { t: 'vysoký', tone: 'ok' }, '3 týdny'],
+              ['Slovenský trh: radar zakázek', { t: 'střední', tone: 'warn' }, '2 týdny']
+            ] }
+          ]
+        }
+      ]
+    }
+  ]
+};
+</script>
+<script>
+(() => {
+'use strict';
+if (!document.documentElement.lang) document.documentElement.lang = 'cs';
+
+/* ============ Načtení dat klienta ============ */
+const params = new URLSearchParams(location.search);
+const clientId = (params.get('klient') || 'ocelis').toLowerCase().replace(/[^a-z0-9-]/g, '');
+if (window.XD_CLIENT) {
+  // data vložená přímo do stránky (publikovaná verze)
+  setTimeout(() => boot(window.XD_CLIENT), 0);
+} else {
+  const loader = document.createElement('script');
+  loader.src = 'data/' + clientId + '.js';
+  loader.onload = () => window.XD_CLIENT ? boot(window.XD_CLIENT) : fail();
+  loader.onerror = fail;
+  document.head.appendChild(loader);
+}
+
+function fail() {
+  document.body.classList.add('linear');
+  document.getElementById('world').innerHTML = '<div class="err"><b>Nepodařilo se načíst data klienta.</b><br>Hledaný soubor: <code>data/' + clientId + '.js</code>. Zkontrolujte název v parametru <code>?klient=</code>.</div>';
+}
+
+/* ============ Pomocné funkce ============ */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const rich = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+const nfCache = {};
+const fmt = (v, d = 0) => (nfCache[d] ||= new Intl.NumberFormat('cs-CZ', { minimumFractionDigits: d, maximumFractionDigits: d })).format(v);
+const kc = v => fmt(Math.round(v)) + ' Kč';
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const store = {
+  get(k) { try { return localStorage.getItem('xdmap:' + k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem('xdmap:' + k, v); } catch (e) {} }
+};
+
+const ICONS = {
+  ceo: '<circle cx="12" cy="12" r="3"/><circle cx="12" cy="3.6" r="1.6"/><circle cx="4.6" cy="17.2" r="1.6"/><circle cx="19.4" cy="17.2" r="1.6"/><path d="M12 5.2V9M6 16.3l3.4-2.3M18 16.3l-3.4-2.3"/>',
+  mkt: '<path d="M3 10v4a1 1 0 0 0 1 1h3l6 4V5L7 9H4a1 1 0 0 0-1 1z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>',
+  sales: '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+  prod: '<path d="M3 21V10l6 4v-4l6 4V5h6v16z"/><path d="M7 17.5h2M12 17.5h2M17 17.5h2"/>',
+  back: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/>',
+  dev: '<path d="M8 7l-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.8a3.5 3.5 0 0 1 0 6.4M18.5 14.8c1.6.9 2.6 2.6 3 5.2"/>',
+  cut: '<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.2 8.2 20 20M8.2 15.8 20 4"/>',
+  invoice: '<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 16h7M9 8h3"/>',
+  box: '<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/>',
+  money: '<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 9.5h.01M17.5 14.5h.01"/>',
+  arrowR: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  arrowL: '<path d="M19 12H5M11 6l-6 6 6 6"/>',
+  up: '<path d="M12 19V5M6 11l6-6 6 6"/>',
+  down: '<path d="M12 5v14M6 13l6 6 6-6"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  warn: '<path d="M12 8v5M12 16.5h.01"/>',
+  move: '<path d="M12 3v18M3 12h18M9 6l3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3M18 9l3 3-3 3"/>',
+  zoom: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4M11 8v6M8 11h6"/>',
+  pointer: '<path d="M6 3l12 7-5.5 1.5L10 17z"/><path d="M13 12l5 6"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  map: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>',
+  page: '<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/>',
+  chat: '<path d="M4 5h16v11H9l-5 4z"/>'
+};
+const icon = (n, cls = '') => '<svg class="ic ' + cls + '" viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || ICONS.info) + '</svg>';
+
+/* ============ Stav ============ */
+let C, cardIndex = new Map(), cardOrder = [];
+const vp = $('#viewport'), world = $('#world');
+const st = { x: 0, y: 0, s: 1 };
+let MIN = 0.08, MAX = 2.2, animId = 0, idleT = 0;
+// ?rezim=stranka vynutí čtení jako stránku, ?rezim=mapa vynutí mapu, jinak podle šířky okna
+const modeWanted = params.get('rezim') || location.hash.slice(1);
+const modeParam = modeWanted === 'stranka' ? true : modeWanted === 'mapa' ? false : null;
+let linearForced = modeParam;
+let interacted = false;  // uživatel už s mapou hýbal → po načtení fontů ho nepřeskakujeme
+const mqNarrow = matchMedia('(max-width: 820px)');
+const isLinear = () => document.body.classList.contains('linear');
+
+/* ============ Start ============ */
+function boot(data) {
+  C = data;
+  document.title = 'AI mapa ' + (C.meta.titleShort || C.meta.client);
+  // CTA
+  $('#ctaTitle').textContent = C.vendor.cta.title;
+  $('#ctaText').textContent = C.vendor.cta.text;
+  $('#ctaBtnTxt').textContent = C.vendor.cta.button;
+  $('#ctaBtnShort').textContent = C.vendor.cta.buttonShort || C.vendor.cta.button;
+  const badge = C.meta.badge || (C.meta.model ? 'Modelová data · fiktivní firma' : '');
+  $('#modelbadge').textContent = badge; $('#modelbadge').hidden = !badge;
+
+  C.weeks.forEach(w => w.cards.forEach(c => { cardIndex.set(c.id, { card: c, week: w }); cardOrder.push(c.id); }));
+  C.weeks.forEach(w => { if (w.optional) modState[w.n] = !!w.on; });
+  computeSchedule();
+
+  world.innerHTML =
+    '<div class="row row-1">' +
+      renderA() + conn('A', 'B') + renderB() + conn('B', 'C') + renderC() + conn('C', 'D') + renderD() +
+    '</div>' +
+    '<div class="row-2">' + renderWeeksHead() + '<div class="lanes">' + C.weeks.map(renderLane).join('') + renderWeeksEnd() + '</div></div>';
+
+  renderMenu();
+  initCalc();
+  applySchedule();
+  initFeed();
+  bindGlobal();
+  setMode();
+  // po načtení webfontu se změní rozměry → znovu zaměřit (jen když uživatel ještě nehýbal)
+  document.fonts?.ready.then(() => { if (!isLinear() && !interacted) { computeMin(); go(startKey(), false); } });
+  // přímý odkaz na kartu: index.html#k-3.1
+  const m = location.hash.match(/^#k-([\d.]+)$/);
+  if (m && cardIndex.has(m[1])) openCard(m[1]);
+  window.addEventListener('hashchange', () => { const h = location.hash.match(/^#k-([\d.]+)$/); if (h && cardIndex.has(h[1]) && curCard !== h[1]) openCard(h[1]); });
+  // malé API pro prezentujícího / ladění: XDMap.go('b'), XDMap.go('w3'), XDMap.open('3.1')
+  window.XDMap = { go, open: openCard, close: closeCard, zoom: (f) => zoomAt(f, vp.clientWidth / 2, vp.clientHeight / 2), view: () => ({ ...st }),
+    focus: (sel, s = 1, dx = 0, dy = 0) => { const el = $(sel); if (!el || isLinear()) return; const r = worldRect(el); Object.assign(st, { s, x: 24 - (r.x + dx) * s, y: topInset() - (r.y + dy) * s }); apply(); } };
+}
+// výchozí pohled: #a–#d nebo #w1–#w7 v adrese, jinak úvod
+function startKey() { const h = location.hash.slice(1); return /^(a|b|c|d|w[1-9])$/.test(h) ? h : 'a'; }
+
+/* ============ Harmonogram: délky fází a volitelné moduly ============ */
+// fáze = pruh s kartami; len = počet týdnů; optional = modul, který si klient může přidat (posune další fáze)
+const modState = {};
+let sched = {}, totalWeeks = 0;
+const plural = (n, one, few, many) => n === 1 ? one : (n >= 2 && n <= 4) ? few : many;
+const rangeLabel = (a, b) => a === b ? 'Týden ' + a : 'Týdny ' + a + '–' + b;
+const monthsOf = w => Math.round(w / 4.33 * 2) / 2;
+function computeSchedule() {
+  let start = 1; sched = {};
+  C.weeks.forEach(w => {
+    const len = w.len || 1, on = !w.optional || !!modState[w.n];
+    sched[w.n] = on ? { on, len, from: start, to: start + len - 1 } : { on, len };
+    if (on) start += len;
+  });
+  totalWeeks = start - 1;
+}
+function wkLabel(n, f = 'long') {
+  const s = sched[n]; if (!s) return '';
+  if (!s.on) return f === 'big' ? '+' + s.len : 'Volitelně · +' + s.len + ' ' + plural(s.len, 'týden', 'týdny', 'týdnů');
+  const r = s.from === s.to ? String(s.from) : s.from + '–' + s.to;
+  return f === 'big' ? r : rangeLabel(s.from, s.to);
+}
+function durLabel(w) {
+  const m = monthsOf(w);
+  if (m < 2) return w + ' ' + plural(w, 'týden', 'týdny', 'týdnů');
+  return Number.isInteger(m) ? m + ' ' + plural(m, 'měsíc', 'měsíce', 'měsíců') : fmt(m, 1) + ' měsíce';
+}
+function fillDyn(t) {
+  return String(t ?? '').replace(/\{dur\}/g, durLabel(totalWeeks)).replace(/\{weeks\}/g, totalWeeks + ' ' + plural(totalWeeks, 'týden', 'týdny', 'týdnů')).replace(/\{T\}/g, String(totalWeeks));
+}
+function setModule(n, on) {
+  modState[n] = on;
+  C.calc.areas.forEach((a, i) => { if (a.module === n) calcState.on[i] = on; });
+  applySchedule(); updateCalc();
+}
+function applySchedule() {
+  computeSchedule();
+  $$('[data-wk]').forEach(el => { el.textContent = wkLabel(+el.dataset.wk, el.dataset.wkf || 'long'); });
+  $$('[data-dyn]').forEach(el => { el.textContent = fillDyn(el.dataset.dyn); });
+  $$('[data-colwk]').forEach(el => {
+    const ns = el.dataset.colwk.split(',').filter(Boolean).map(Number); if (!ns.length) return;
+    const on = ns.map(n => sched[n]).filter(x => x && x.on);
+    const len = ns.reduce((a, n) => a + (sched[n]?.len || 0), 0);
+    el.textContent = on.length ? rangeLabel(Math.min(...on.map(x => x.from)), Math.max(...on.map(x => x.to))) : 'Volitelně · +' + len + ' ' + plural(len, 'týden', 'týdny', 'týdnů');
+  });
+  $$('.lane').forEach(l => l.classList.toggle('off', !sched[+l.dataset.n]?.on));
+  $$('[data-mod]').forEach(sw => { const on = !!modState[+sw.dataset.mod]; sw.setAttribute('aria-checked', String(on)); const t = sw.querySelector('.sw-t'); if (t) t.textContent = on ? 'V PROGRAMU' : 'PŘIDAT'; });
+  renderTimeline();
+}
+function renderTimeline() {
+  const tl = $('#tl'); if (!tl) return;
+  const D = C.needs, on = C.weeks.filter(w => sched[w.n]?.on), m = monthsOf(totalWeeks);
+  tl.style.gridTemplateColumns = on.map(w => (w.len || 1) + 'fr').join(' ');
+  tl.innerHTML = on.map(w => '<div class="tl-seg' + (w.optional ? ' opt' : '') + '"><b>' + esc(wkLabel(w.n)) + '</b><span>' + esc(w.short) + '</span></div>').join('');
+  $('#tlAfter').innerHTML = '<span><b>' + rangeLabel(1, totalWeeks) + '</b> · ' + esc(D.during || 'nasazení a ladění s konzultanty') + '</span><span><b>Měsíce ' + (Math.floor(m) + 1) + '–12</b> · ' + esc(D.after) + '</span>';
+  $('#tlMods').innerHTML = C.weeks.filter(w => w.optional).map(w => {
+    const onM = !!modState[w.n];
+    return '<div class="mod-row' + (onM ? ' on' : '') + '"><button class="switch" type="button" role="switch" aria-checked="' + onM + '" data-mod="' + w.n + '" aria-label="' + esc('Zahrnout do programu: ' + w.short) + '"><span class="sw-t">' + (onM ? 'V PROGRAMU' : 'PŘIDAT') + '</span><span class="knob"></span></button>' +
+      '<div><b>' + esc((w.optionalLabel || 'Volitelný modul: ' + w.short) + ' · +' + w.len + ' ' + plural(w.len, 'týden', 'týdny', 'týdnů')) + '</b><span class="t">' + esc(w.optionalText || '') + '</span></div></div>';
+  }).join('');
+}
+
+/* ============ A · Úvod ============ */
+function renderA() {
+  const H = C.hero, P = H.profile;
+  return '<section class="sec sec-a" id="sec-a" aria-labelledby="a-title">' +
+    '<div class="chip-sec"><b>A</b>Úvod</div>' +
+    '<div class="hero-grid"><div class="hero-main">' +
+      '<div class="kicker">' + esc(H.kicker) + '</div>' +
+      '<h1 class="display hero-title" id="a-title">' + H.title.map(l => '<span>' + esc(l) + '</span>').join('') + '<span class="accent" data-dyn="' + esc(H.titleAccent) + '">' + esc(fillDyn(H.titleAccent)) + '</span></h1>' +
+      '<p class="hero-lead">' + esc(H.lead) + ' <strong data-dyn="' + esc(H.leadStrong) + '">' + esc(fillDyn(H.leadStrong)) + '</strong></p>' +
+      '<div class="pains">' + H.pains.map(p =>
+        '<button class="pain" type="button" data-open="' + esc(p.open) + '">' +
+          '<span class="pain-top"><span class="pain-ic">' + icon(p.icon) + '</span><span class="pain-val">' + esc(p.value) + '</span></span>' +
+          '<span class="pain-label" style="display:block">' + esc(p.label) + '</span>' +
+          '<span class="pain-agent">' + esc(p.agent) + icon('arrowR') + '</span>' +
+        '</button>').join('') + '</div>' +
+    '</div><aside class="hero-side">' +
+      '<div class="profile"><div class="profile-art">' + (P.art === 'steel' ? steelArt() : P.art === 'traffic' ? trafficArt() : '') + '</div><div class="profile-body">' +
+        '<span class="tag">' + esc(P.tag) + '</span>' +
+        '<div class="profile-name">' + esc(P.name) + '</div>' +
+        '<div class="profile-obor">' + esc(P.obor) + '</div>' +
+        '<div class="facts">' + P.facts.map(f => '<div class="fact"><b>' + esc(f.v) + '</b><span>' + esc(f.k) + '</span></div>').join('') + '</div>' +
+        '<div class="profile-note">' + rich(P.note) + '</div>' +
+      '</div></div>' +
+      '<div class="story"><div class="story-val">' + esc(H.story.value) + '</div><p>' + esc(H.story.text) + '</p><div class="story-tag">' + esc(H.story.tag) + '</div></div>' +
+      '<div class="feed"><div class="feed-head"><span class="live-dot"></span>' + esc(H.feedTitle) + '</div><ol class="feed-list" id="feedList" aria-live="off"></ol></div>' +
+    '</aside></div></section>';
+}
+
+function steelArt() {
+  // průřezy: I-profil, jekl, trubka, úhelník, plech
+  const s = 'fill="none" stroke="#FA2B2B" stroke-width="3" stroke-linejoin="round"';
+  const g = 'fill="none" stroke="#484848" stroke-width="1.5" stroke-dasharray="4 5"';
+  return '<svg viewBox="0 0 560 120" aria-hidden="true">' +
+    '<line x1="0" y1="112" x2="560" y2="112" ' + g + '/>' +
+    '<path ' + s + ' d="M20 12h72v12H62v64h30v12H20V88h30V24H20z"/>' +
+    '<rect ' + s + ' x="128" y="22" width="80" height="80" rx="8"/><rect ' + s + ' x="140" y="34" width="56" height="56" rx="3"/>' +
+    '<circle ' + s + ' cx="286" cy="62" r="40"/><circle ' + s + ' cx="286" cy="62" r="29"/>' +
+    '<path ' + s + ' d="M360 22h12v68h56v12h-68z"/>' +
+    '<rect ' + s + ' x="462" y="78" width="84" height="12" rx="2"/><path ' + g + ' d="M462 60h84"/>' +
+    '<text x="56" y="10" font-size="11" font-weight="700" fill="#6B6B6B" text-anchor="middle" font-family="Archivo,Arial">IPE</text>' +
+    '<text x="168" y="14" font-size="11" font-weight="700" fill="#6B6B6B" text-anchor="middle" font-family="Archivo,Arial">JEKL</text>' +
+    '<text x="286" y="14" font-size="11" font-weight="700" fill="#6B6B6B" text-anchor="middle" font-family="Archivo,Arial">TRUBKA</text>' +
+    '<text x="394" y="14" font-size="11" font-weight="700" fill="#6B6B6B" text-anchor="middle" font-family="Archivo,Arial">ÚHELNÍK</text>' +
+    '<text x="504" y="52" font-size="11" font-weight="700" fill="#6B6B6B" text-anchor="middle" font-family="Archivo,Arial">PLECH</text>' +
+    '</svg>';
+}
+
+function trafficArt() {
+  // portál s proměnnou značkou, silnice, měřicí vůz s laserem, most
+  const s = 'fill="none" stroke="#FA2B2B" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"';
+  const g = 'fill="none" stroke="#484848" stroke-width="1.5" stroke-dasharray="4 5"';
+  const t = (x, y, txt, a) => '<text x="' + x + '" y="' + y + '" font-size="11" font-weight="700" fill="#6B6B6B" text-anchor="' + (a || 'middle') + '" font-family="Archivo,Arial">' + txt + '</text>';
+  return '<svg viewBox="0 0 560 120" aria-hidden="true">' +
+    '<line x1="0" y1="112" x2="560" y2="112" ' + g + '/>' +
+    '<path ' + s + ' d="M14 112V34M126 112V34M10 34h120"/><rect ' + s + ' x="34" y="42" width="72" height="34" rx="4"/>' +
+    '<text x="70" y="66" font-size="19" font-weight="800" fill="#FA2B2B" text-anchor="middle" font-family="Archivo,Arial">80</text>' +
+    '<path ' + s + ' d="M170 112l30-70h40l30 70M220 50v8M220 70v10M220 92v12"/>' +
+    '<rect ' + s + ' x="300" y="62" width="86" height="30" rx="8"/><path ' + s + ' d="M312 62l10-16h40l12 16"/><circle ' + s + ' cx="320" cy="96" r="7"/><circle ' + s + ' cx="366" cy="96" r="7"/>' +
+    '<path fill="none" stroke="#FA2B2B" stroke-width="1.5" stroke-dasharray="3 4" d="M392 70l24 42M392 70l6 42M392 70l40 42"/>' +
+    '<path ' + s + ' d="M446 112c0-34 50-34 50 0M496 112c0-34 50-34 50 0M440 78h112"/>' +
+    t(70, 26, 'TELEMATIKA') + t(220, 36, 'CleveRA') + t(343, 38, 'CleveRA CAR') + t(498, 66, 'BIM') +
+    '</svg>';
+}
+
+function initFeed() {
+  const list = $('#feedList'); if (!list) return;
+  const items = C.hero.feed; let i = 0, clock = C.hero.feedStart || 420;
+  const add = (animate) => {
+    const it = items[i % items.length]; i++;
+    clock += 3 + ((i * 5) % 7);
+    const hh = String(Math.floor(clock / 60) % 24).padStart(2, '0'), mm = String(clock % 60).padStart(2, '0');
+    const li = document.createElement('li');
+    if (animate) li.className = 'new';
+    li.innerHTML = '<span class="feed-time">' + hh + ':' + mm + '</span><span><span class="feed-agent">' + esc(C.agents[it.agent].name) + '</span>' + esc(it.text) + '</span>';
+    list.prepend(li);
+    while (list.children.length > 5) list.lastElementChild.remove();
+  };
+  for (let k = 0; k < 5; k++) add(false);
+  if (!reduced) setInterval(() => { if (!document.hidden) add(true); }, 3400);
+}
+
+/* ============ B · Kalkulačka ============ */
+function renderB() {
+  const K = C.calc;
+  return '<section class="sec sec-b" id="sec-b" aria-labelledby="b-title">' +
+    '<div class="chip-sec"><b>B</b>Kalkulačka</div>' +
+    '<div class="b-head"><div><h2 class="display h2" id="b-title">' + esc(K.title) + '</h2><p class="lead">' + esc(K.lead) + '</p></div>' +
+      '<div class="cur" role="group" aria-label="Měna"><button type="button" data-cur="czk" aria-pressed="true">Kč</button><button type="button" data-cur="eur" aria-pressed="false">€</button></div></div>' +
+    '<div class="calc">' +
+      '<div class="result" aria-live="polite">' +
+        '<div class="lbl">Nárůst zisku ročně</div>' +
+        '<div class="res-val" id="resVal">+0</div>' +
+        '<div class="res-sub" id="resSub"></div>' +
+        '<div class="target"><div class="target-top"><span class="lbl">' + esc(K.targetLabel || 'Váš cíl z roadmapy') + '</span><span class="target-v" id="tgtV"></span></div>' +
+          '<div class="track" id="track"><div class="fill"></div><div class="over"></div><div class="mark" data-m="base"></div><div class="mark" data-m="tgt"></div></div>' +
+          '<div class="track-lbls"><span id="trkL"></span><span id="trkR"></span></div>' +
+          '<div class="target-msg" id="tgtMsg"></div></div>' +
+        '<div class="wf" id="wf"></div>' +
+        '<div class="disclaim">' + icon('info') + '<span>' + esc(K.disclaimer) + '</span></div>' +
+        '<details class="how"><summary>Jak počítáme</summary><p style="margin:8px 0 0">' + esc(K.howText) + '</p><table id="howTbl"></table></details>' +
+      '</div>' +
+      '<div class="areas">' + K.areas.map((a, i) =>
+        '<div class="area" data-area="' + i + '">' +
+          '<div class="area-head"><span class="area-ic">' + icon(C.agents[a.agent].icon) + '</span><div><div class="area-t">' + esc(a.title) + '</div><div class="area-a">' + esc(C.agents[a.agent].name) + '</div>' + (a.module ? '<div class="area-mod">' + esc(a.moduleNote || 'Volitelný modul programu') + '</div>' : '') + '</div>' +
+          '<button class="switch" type="button" role="switch" aria-checked="false" data-sw="' + i + '" aria-label="Aktivovat: ' + esc(a.title) + '"><span class="sw-t">AKTIVOVAT</span><span class="knob"></span></button></div>' +
+          '<div class="area-items">' + a.items.map(t => '<span>' + esc(t) + '</span>').join('') + '</div>' +
+          '<div class="area-arrows">' + a.arrows.map(t => '<span>' + icon(t[0] === '↓' ? 'down' : 'up') + esc(t.replace(/^[↑↓]\s*/, '')) + '</span>').join('') + '</div>' +
+          '<div class="area-ctl"><div class="area-row"><span>' + esc(a.sliderLabel) + '</span><span class="lift" data-lift="' + i + '">0 %</span></div>' +
+          '<input type="range" min="0" max="100" step="1" value="0" id="calc-' + esc(a.lever) + '" data-rng="' + i + '" aria-label="' + esc(a.sliderLabel) + '" disabled>' +
+          '<div class="area-row"><span data-mk="' + i + '"></span><b data-mv="' + i + '"></b></div>' +
+          '<div class="area-sub" data-ms="' + i + '"></div></div>' +
+        '</div>').join('') + '</div>' +
+    '</div></section>';
+}
+
+const calcState = { cur: 'czk', on: [], x: [] };
+function model(xs) {
+  const b = C.calc.base; let gm = b.grossMargin, rev = b.revenue, fixed = b.fixedCosts, save = 0;
+  C.calc.areas.forEach((a, i) => {
+    const x = xs[i] || 0;
+    if (a.lever === 'margin') gm *= (1 + x);
+    else if (a.lever === 'demand' || a.lever === 'conversion') rev *= (1 + x);
+    else if (a.lever === 'waste') save += b.wastePct * x * b.processedTons * 10 * (b.pricePerKg - b.scrapPerKg);
+    else if (a.lever === 'overhead') fixed -= b.adminCosts * x;
+    else if (a.lever === 'revenue') rev *= (1 + x);
+    else if (a.lever === 'cost') save += (a.pool || 0) * x;
+  });
+  return rev * (gm - b.variableCosts) - fixed + save;
+}
+function money(v, d = 2) {
+  const eur = calcState.cur === 'eur'; const r = eur ? v / C.calc.eurRate : v;
+  return fmt(r / 1e6, d) + ' mil. ' + (eur ? '€' : 'Kč');
+}
+function initCalc() {
+  const K = C.calc; K.areas.forEach((a, i) => { calcState.on[i] = a.module ? !!modState[a.module] : false; calcState.x[i] = a.default; });
+  const b = K.base;
+  $('#howTbl').innerHTML = K.assumptions.map(r => '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td></tr>').join('');
+  $('#sec-b').addEventListener('click', e => {
+    const sw = e.target.closest('[data-sw]');
+    if (sw) { const i = +sw.dataset.sw, a = K.areas[i]; if (a.module) setModule(a.module, !calcState.on[i]); else { calcState.on[i] = !calcState.on[i]; updateCalc(); } return; }
+    const cur = e.target.closest('[data-cur]');
+    if (cur) { calcState.cur = cur.dataset.cur; $$('[data-cur]').forEach(x => x.setAttribute('aria-pressed', String(x === cur))); updateCalc(); }
+  });
+  $('#sec-b').addEventListener('input', e => {
+    const r = e.target.closest('[data-rng]'); if (!r) return;
+    const i = +r.dataset.rng; calcState.x[i] = K.areas[i].max * (+r.value / 100); updateCalc();
+  });
+  K.areas.forEach((a, i) => { const r = $('[data-rng="' + i + '"]'); r.value = Math.round(a.default / a.max * 100); });
+  updateCalc();
+}
+function updateCalc() {
+  const K = C.calc, b = K.base;
+  const xs = K.areas.map((a, i) => calcState.on[i] ? calcState.x[i] : 0);
+  const base = model([]), now = model(xs), tgt = K.target;
+  const delta = now - base;
+  $('#resVal').textContent = (delta >= 0 ? '+' : '−') + money(Math.abs(delta));
+  $('#resVal').classList.toggle('pos', delta > 0);
+  $('#resSub').innerHTML = 'z <b>' + money(base) + '</b> na <b>' + money(now) + '</b> ročně · ' + fmt(now / base, 2) + '× (' + (delta >= 0 ? '+' : '') + fmt(delta / base * 100, 0) + ' %)';
+  $('#tgtV').textContent = fmt(tgt / base, 2) + '× · ' + money(base, 1) + ' → ' + money(tgt, 1);
+  // track
+  const maxV = Math.max(tgt, now) * 1.04;
+  const pct = v => clamp(v / maxV * 100, 0, 100) + '%';
+  const tr = $('#track');
+  tr.querySelector('.fill').style.width = pct(Math.min(now, tgt));
+  const over = tr.querySelector('.over');
+  over.style.left = pct(tgt); over.style.width = now > tgt ? (clamp((now - tgt) / maxV * 100, 0, 100) + '%') : '0%';
+  tr.querySelector('[data-m="base"]').style.left = pct(base);
+  tr.querySelector('[data-m="tgt"]').style.left = pct(tgt);
+  $('#trkL').textContent = 'Dnes ' + money(base, 1);
+  $('#trkR').textContent = 'Cíl ' + money(tgt, 1);
+  // uniformní zlepšení potřebné na cíl
+  let lo = 0, hi = 1; for (let k = 0; k < 40; k++) { const m = (lo + hi) / 2; model(K.areas.map(() => m)) < tgt ? lo = m : hi = m; }
+  const u = Math.max(1, Math.round(hi * 100));
+  $('#tgtMsg').innerHTML = now >= tgt
+    ? '<b>Cíl splněn.</b> S tímto nastavením jste ' + money(now - tgt) + ' nad cílem.'
+    : 'Na cíl potřebujete <b>' + fmt(tgt / base, 2) + '×</b>. Zapněte oblasti, kterým věříte. Na cíl stačí zhruba <b>' + u + ' % v každé</b>.';
+  // oblasti
+  K.areas.forEach((a, i) => {
+    const on = calcState.on[i], x = calcState.x[i];
+    const el = $('[data-area="' + i + '"]');
+    el.classList.toggle('on', on);
+    const sw = el.querySelector('.switch'); sw.setAttribute('aria-checked', String(on)); sw.querySelector('.sw-t').textContent = on ? 'AKTIVNÍ' : 'AKTIVOVAT';
+    const r = el.querySelector('input'); r.disabled = !on; r.style.setProperty('--p', r.value + '%');
+    const sign = a.display ? (a.display.dir === -1 ? '−' : '+') : (a.lever === 'waste' || a.lever === 'overhead') ? '−' : '+';
+    el.querySelector('[data-lift]').textContent = sign + fmt(x * 100, 0) + ' %';
+    const xe = on ? x : 0; const [k, v, sub] = metric(a, xe, xs);
+    el.querySelector('[data-mk]').textContent = k;
+    el.querySelector('[data-mv]').textContent = v;
+    el.querySelector('[data-ms]').textContent = sub || '';
+  });
+  // vodopád
+  const steps = []; let prev = base; const acc = K.areas.map(() => 0);
+  K.areas.forEach((a, i) => { acc[i] = xs[i]; const p = model(acc); steps.push({ l: a.short, v: p - prev }); prev = p; });
+  $('#wf').innerHTML = waterfall(base, steps, now, tgt);
+}
+function metric(a, x, xs) {
+  const b = C.calc.base;
+  if (a.display) {
+    // obecné zobrazení z dat: { label, base, unit, dec, dir } + volitelná věta sub s {money} {hours} {rev}
+    const d = a.display, f = v => fmt(v, d.dec ?? 0) + (d.unit ? ' ' + d.unit : '');
+    const sub = (a.sub || '').replace('{money}', money((a.pool || 0) * x)).replace('{hours}', fmt((a.hoursPool || 0) * x, 0)).replace('{rev}', money(b.revenue * x));
+    return [d.label, f(d.base) + ' → ' + f(d.base * (1 + (d.dir ?? 1) * x)), sub];
+  }
+  const idx = l => C.calc.areas.findIndex(q => q.lever === l);
+  switch (a.lever) {
+    case 'margin': return ['Hrubá marže', fmt(b.grossMargin * 100, 1) + ' % → ' + fmt(b.grossMargin * (1 + x) * 100, 1) + ' %', '+' + money(b.revenue * b.grossMargin * x) + ' hrubého zisku při dnešním obratu'];
+    case 'demand': return ['Poptávek měsíčně', fmt(b.inquiries) + ' → ' + fmt(b.inquiries * (1 + x)), '+' + fmt(b.inquiries * x) + ' poptávek měsíčně'];
+    case 'conversion': {
+      const d = idx('demand'), inq = b.inquiries * (1 + (d >= 0 ? xs[d] : 0));
+      return ['Úspěšnost nabídek', fmt(b.winRate * 100, 0) + ' % → ' + fmt(b.winRate * (1 + x) * 100, 1) + ' %', 'Zakázek měsíčně ' + fmt(b.inquiries * b.winRate) + ' → ' + fmt(inq * b.winRate * (1 + x))];
+    }
+    case 'waste': return ['Prořez materiálu', fmt(b.wastePct, 1) + ' % → ' + fmt(b.wastePct * (1 - x), 1) + ' %', 'O ' + fmt(b.processedTons * b.wastePct / 100 * x, 0) + ' t méně odpadu ročně'];
+    case 'overhead': return ['Úspora administrativy', '−' + money(b.adminCosts * x) + ' ročně', 'Rutiny zpět až ' + fmt(b.adminHoursWeek * x, 0) + ' h týdně'];
+  }
+  return ['', '', ''];
+}
+function waterfall(base, steps, total, tgt) {
+  const W = 620, H = 250, pl = 6, pr = 6, pt = 26, pb = 40;
+  const n = steps.length + 2, slot = (W - pl - pr) / n, bw = slot * .6;
+  const maxV = Math.max(tgt, total, base) * 1.1;
+  const y = v => pt + (H - pt - pb) * (1 - v / maxV);
+  const cur = calcState.cur === 'eur' ? C.calc.eurRate : 1;
+  const short = v => fmt(v / cur / 1e6, 1);
+  let out = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Most zisku: dnes, přínos jednotlivých oblastí a nový zisk">';
+  out += '<line x1="0" x2="' + W + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="#DADADA"/>';
+  const bar = (i, v0, v1, fill, lbl, val, strong) => {
+    const x = pl + slot * i + (slot - bw) / 2, top = y(Math.max(v0, v1)), h = Math.max(1.5, Math.abs(y(v0) - y(v1)));
+    out += '<rect x="' + x + '" y="' + top + '" width="' + bw + '" height="' + h + '" rx="4" fill="' + fill + '"/>';
+    out += '<text x="' + (x + bw / 2) + '" y="' + (top - 7) + '" text-anchor="middle" font-size="12.5" font-weight="' + (strong ? 800 : 700) + '" fill="#232323" font-family="Archivo,Arial">' + val + '</text>';
+    out += '<text x="' + (x + bw / 2) + '" y="' + (H - pb + 18) + '" text-anchor="middle" font-size="11.5" font-weight="600" fill="#6B6B6B" font-family="Archivo,Arial">' + esc(lbl) + '</text>';
+    if (i < n - 1) { const nx = pl + slot * (i + 1) + (slot - bw) / 2; out += '<line x1="' + (x + bw) + '" x2="' + nx + '" y1="' + y(v1) + '" y2="' + y(v1) + '" stroke="#BDBDBD" stroke-dasharray="3 3"/>'; }
+  };
+  bar(0, 0, base, '#484848', 'Dnes', short(base), true);
+  let acc = base;
+  steps.forEach((s, i) => { bar(i + 1, acc, acc + s.v, s.v > 0.5 ? '#FA2B2B' : '#E2E2E2', s.l, s.v > 0.5 ? '+' + short(s.v) : '0', false); acc += s.v; });
+  bar(n - 1, 0, total, total >= tgt ? '#15805A' : '#D31414', 'Nově', short(total), true);
+  out += '<line x1="0" x2="' + W + '" y1="' + y(tgt) + '" y2="' + y(tgt) + '" stroke="#232323" stroke-width="1.5" stroke-dasharray="6 5"/>';
+  out += '<text x="' + (W - 4) + '" y="' + (y(tgt) - 6) + '" text-anchor="end" font-size="11.5" font-weight="800" fill="#232323" font-family="Archivo,Arial">CÍL ' + short(tgt) + '</text>';
+  out += '<text x="4" y="14" font-size="11" font-weight="800" fill="#6B6B6B" letter-spacing="1" font-family="Archivo,Arial">ZISK ROČNĚ · MIL. ' + (calcState.cur === 'eur' ? '€' : 'KČ') + '</text>';
+  return out + '</svg>';
+}
+
+/* ============ C · Co bude hotové ============ */
+function renderC() {
+  const D = C.deliver;
+  return '<section class="sec sec-c" id="sec-c" aria-labelledby="c-title">' +
+    '<div class="chip-sec"><b>C</b>Co bude hotové</div>' +
+    '<h2 class="display h2" id="c-title" data-dyn="' + esc(D.title) + '">' + esc(fillDyn(D.title)) + '</h2><p class="lead">' + esc(D.lead) + '</p>' +
+    '<div class="deliver">' + D.columns.map((c, i) =>
+      '<div class="dcol"><div class="dcol-num" data-colwk="' + esc((c.lanes || []).join(',')) + '">' + esc(c.when || '') + '</div>' +
+      '<div class="dcol-title">' + esc(c.area) + '</div>' +
+      '<div class="dcol-agent">' + icon(C.agents[c.agent].icon) + esc(C.agents[c.agent].name) + '</div>' +
+      '<ul>' + c.items.map(t => '<li>' + icon('check') + '<span>' + esc(t) + '</span></li>').join('') + '</ul></div>').join('') +
+    '</div></section>';
+}
+
+/* ============ D · Co potřebujete ============ */
+function renderD() {
+  const D = C.needs;
+  return '<section class="sec sec-d" id="sec-d" aria-labelledby="d-title">' +
+    '<div class="chip-sec"><b>D</b>Co potřebujete</div>' +
+    '<h2 class="display h2" id="d-title">' + esc(D.title) + '</h2>' +
+    '<div class="pills">' + D.pills.map((p, i) => (i ? '<i>+</i>' : '') + '<span>' + esc(p) + '</span>').join('') + '</div>' +
+    '<p class="lead" data-dyn="' + esc(D.lead) + '">' + esc(fillDyn(D.lead)) + '</p>' +
+    '<div class="tl" id="tl"></div><div class="tl-after" id="tlAfter"></div><div class="mods" id="tlMods"></div>' +
+    '<div class="products">' + D.products.map((p, i) =>
+      '<div class="prod' + (p.highlight ? ' hl' : '') + '"><div class="prod-num" data-dyn="' + esc(p.term || '') + '">' + esc(fillDyn(p.term || '')) + '</div>' +
+      '<div class="prod-name">' + esc(p.name) + '</div><div class="prod-sub" data-dyn="' + esc(p.sub) + '">' + esc(fillDyn(p.sub)) + '</div>' +
+      '<ul>' + p.items.map(t => '<li>' + icon('check') + '<span>' + esc(t) + '</span></li>').join('') + '</ul></div>').join('') + '</div>' +
+    '<div class="cta-box"><div><strong>' + esc(D.cta.title) + '</strong><span>' + esc(D.cta.text) + '</span></div><button class="btn btn-red" type="button" data-cta>' + esc(C.vendor.cta.button) + icon('arrowR') + '</button></div>' +
+    '</section>';
+}
+
+function conn(a, b) {
+  return '<div class="conn" aria-hidden="true"><div class="conn-in"><span class="conn-dot">' + a + '</span><span class="conn-line"></span><span class="conn-dot on">' + b + '</span></div></div>';
+}
+
+/* ============ Týdny ============ */
+function renderWeeksHead() {
+  const W = C.weeksIntro;
+  const agentsUsed = [...new Set(C.weeks.map(w => w.agent))];
+  return '<div class="weeks-head" id="weeks"><div>' +
+    '<div class="chip-sec" style="margin-bottom:18px"><b data-dyn="1–{T}">1–' + totalWeeks + '</b>' + esc(W.chip) + '</div>' +
+    '<h2 class="display h2">' + esc(W.title.replace('{n}', cardOrder.length)) + '</h2><p class="lead">' + esc(W.lead) + '</p></div>' +
+    '<div class="legend">' + agentsUsed.map(k => '<span><i>' + icon(C.agents[k].icon) + '</i>' + esc(C.agents[k].name) + '</span>').join('') + '</div>' +
+    '<div class="wk-list">' + C.weeks.map(w => '<button type="button" class="wk" data-go="w' + w.n + '"><span class="wk-n" data-wk="' + w.n + '" data-wkf="big">' + esc(wkLabel(w.n, 'big')) + '</span><span class="wk-t"><b>' + esc(w.title) + '</b><span>' + esc(C.agents[w.agent].name) + ' · ' + w.cards.length + ' ' + (w.cards.length === 1 ? 'booster' : w.cards.length < 5 ? 'boostery' : 'boosterů') + '</span></span><span class="wk-i"><b>' + esc(w.impact) + '</b>' + esc(w.impactLabel) + '</span></button>').join('') + '</div></div>';
+}
+function renderLane(w) {
+  const ag = C.agents[w.agent];
+  return '<section class="lane' + (sched[w.n]?.on ? '' : ' off') + '" id="week-' + w.n + '" data-n="' + w.n + '" aria-labelledby="w' + w.n + '-t">' +
+    '<div class="lane-head">' +
+      '<div class="lane-top"><div class="lane-num" aria-hidden="true" data-wk="' + w.n + '" data-wkf="big">' + esc(wkLabel(w.n, 'big')) + '</div><div class="lane-impact"><b>' + esc(w.impact) + '</b><span>' + esc(w.impactLabel) + '</span></div></div>' +
+      '<div class="lane-kick"><span data-wk="' + w.n + '">' + esc(wkLabel(w.n)) + '</span> · ' + esc(w.short) + '</div>' +
+      '<h3 class="lane-title" id="w' + w.n + '-t">' + esc(w.title) + '</h3>' +
+      '<span class="agent-chip"><i>' + icon(ag.icon) + '</i><b>' + esc(ag.name) + '</b><span>' + esc(ag.role) + '</span></span>' +
+      '<div class="lane-arrows">' + w.arrows.map(t => '<span>' + icon(t[0] === '↓' ? 'down' : 'up') + esc(t.replace(/^[↑↓]\s*/, '')) + '</span>').join('') + '</div>' +
+      (w.optional ? '<div class="lane-mod"><button class="switch" type="button" role="switch" aria-checked="' + !!modState[w.n] + '" data-mod="' + w.n + '" aria-label="' + esc('Zahrnout do programu: ' + w.short) + '"><span class="sw-t">' + (modState[w.n] ? 'V PROGRAMU' : 'PŘIDAT') + '</span><span class="knob"></span></button><span>' + esc(w.optionalText || 'Volitelný modul programu') + '</span></div>' : '') +
+    '</div>' +
+    '<div class="cards">' + w.cards.map(c => renderCard(c, w)).join('') + '</div></section>';
+}
+function renderCard(c, w) {
+  const prev = c.preview || [c.output[0]];
+  return '<article class="card" data-card="' + esc(c.id) + '">' +
+    '<div class="card-meta"><span class="card-id">' + esc(c.id) + '</span><span data-wk="' + w.n + '">' + esc(wkLabel(w.n)) + '</span> · ' + esc(w.short) + '</div>' +
+    '<h4 class="card-title">' + esc(c.title) + '</h4>' +
+    '<p class="card-desc">' + rich(c.desc) + '</p>' +
+    '<div class="prompt"><span class="prompt-lbl">PROMPT</span><span>' + esc(c.prompt) + '</span></div>' +
+    '<div class="booster">' + esc(c.booster?.type || w.booster) + ' · ' + (c.booster?.skill || '').split('+').map(s => '<code>' + esc(s.trim()) + '</code>').join(' + ') + '</div>' +
+    '<div class="card-prev c" aria-hidden="true">' + blocks(prev, true) + '</div>' +
+    '<button class="card-open" type="button" data-open="' + esc(c.id) + '">Otevřít výstup' + icon('arrowR') + '</button>' +
+  '</article>';
+}
+function renderWeeksEnd() {
+  const E = C.weeksEnd;
+  return '<div class="weeks-end"><div class="kicker">' + esc(E.kicker) + '</div><h3 class="display">' + esc(E.title) + '</h3><p>' + esc(E.text) + '</p>' +
+    '<div class="btns"><button class="btn btn-ghost" type="button" data-go="b">' + icon('up') + 'Zpět na kalkulačku</button><button class="btn btn-red" type="button" data-cta>' + esc(C.vendor.cta.button) + icon('arrowR') + '</button></div></div>';
+}
+
+/* ============ Bloky výstupů ============ */
+function blocks(list, c) { return (list || []).map(b => '<div class="blk">' + (b.title ? '<h5 class="blk-title">' + esc(b.title) + '</h5>' : '') + (R[b.type] ? R[b.type](b, c) : '') + '</div>').join(''); }
+function cell(v) {
+  if (v && typeof v === 'object') return '<span class="pill ' + esc(v.tone || 'info') + '">' + esc(v.t) + '</span>';
+  const s = String(v ?? '');
+  if (s.startsWith('✓ ')) return '<span class="pill ok">' + esc(s) + '</span>';
+  if (s.startsWith('! ')) return '<span class="pill warn">' + esc(s.slice(2)) + '</span>';
+  if (s.startsWith('× ')) return '<span class="pill bad">' + esc(s.slice(2)) + '</span>';
+  return rich(s);
+}
+let uid = 0;
+const R = {
+  fields(b, c) {
+    const rows = c && b.compact ? b.rows.slice(0, b.compact) : c ? b.rows.slice(0, 3) : b.rows;
+    return '<dl class="fields">' + rows.map(r => '<dt>' + esc(r[0]) + '</dt><dd>' + rich(r[1]) + '</dd>').join('') + '</dl>';
+  },
+  text(b) { return '<div class="txt">' + [].concat(b.text).map(p => '<p>' + rich(p) + '</p>').join('') + '</div>'; },
+  table(b, c) {
+    const rows = c ? b.rows.slice(0, b.compact || 4) : b.rows;
+    const num = b.num || [];
+    const colsIdx = c && b.compactCols ? b.compactCols : b.cols.map((_, i) => i);
+    return '<div class="tbl-wrap"><table class="tbl"><thead><tr>' + colsIdx.map(i => '<th' + (num.includes(i) ? ' class="num"' : '') + '>' + esc(b.cols[i]) + '</th>').join('') + '</tr></thead><tbody>' +
+      rows.map(r => '<tr>' + colsIdx.map(i => '<td' + (num.includes(i) ? ' class="num"' : '') + '>' + cell(r[i]) + '</td>').join('') + '</tr>').join('') +
+      '</tbody></table></div>' + (!c && b.note ? '<div class="tbl-note">' + rich(b.note) + '</div>' : '');
+  },
+  kpis(b, c) {
+    const items = c && b.compact ? b.items.slice(0, b.compact) : b.items;
+    return '<div class="kpis">' + items.map(k => '<div class="kpi"><div class="kpi-v">' + esc(k.v) + '</div><div class="kpi-l">' + esc(k.l) + '</div>' + (k.d ? '<div class="kpi-d ' + (k.tone || '') + '">' + esc(k.d) + '</div>' : '') + '</div>').join('') + '</div>';
+  },
+  bars(b, c) {
+    const max = Math.max(...b.items.map(i => Math.abs(i.v)));
+    return '<div class="bars">' + b.items.map(i => '<div class="bar-row"><div class="bar-l">' + esc(i.l) + '</div><div class="bar-track"><div class="bar-fill ' + (i.tone || (i.v < 0 ? 'dark' : '')) + '" style="width:' + (Math.abs(i.v) / max * 100).toFixed(1) + '%"></div></div><div class="bar-v">' + esc(i.f || fmt(i.v)) + '</div></div>').join('') + '</div>';
+  },
+  score(b) {
+    return '<div class="score">' + [['before', b.before], ['after', b.after]].map(([k, s]) => '<div class="score-row ' + k + '"><span>' + esc(s.t) + '</span><div class="score-bar"><i style="width:' + s.v + '%"></i></div><b>' + s.v + '</b></div>').join('') + '</div>';
+  },
+  steps(b) { return '<ol class="steps">' + b.items.map(s => '<li><span class="st-t">' + esc(s.t) + '</span><div class="st-b"><b>' + esc(s.title) + '</b><p>' + rich(s.text) + '</p></div></li>').join('') + '</ol>'; },
+  quote(b, c) {
+    let sub = 0, disc = 0, kg = 0;
+    b.items.forEach(i => { const t = i.qty * i.price; sub += t; if (i.disc) disc += t * (b.discountPct || 0) / 100; if (i.kg) kg += i.kg * i.qty; });
+    const baseV = sub - disc, vat = baseV * (b.vat ?? 21) / 100, tot = baseV + vat;
+    if (c) return '<div class="q-compact"><div><div class="q-no"><small>NABÍDKA</small>' + esc(b.number) + '</div><div class="q-meta">' + esc(b.customer) + '<br>' + b.items.length + ' položek · ' + fmt(kg / 1000, 1) + ' t</div></div><div class="q-sum"><span class="q-meta">Celkem bez DPH</span><b>' + kc(baseV) + '</b></div></div>';
+    return '<div class="quote"><div class="q-head"><div class="q-no"><small>NABÍDKA</small>' + esc(b.number) + '</div><div class="q-meta">' + b.meta.map(m => esc(m[0]) + ': <b>' + esc(m[1]) + '</b>').join('<br>') + '</div></div>' +
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Položka</th><th class="num">Množství</th><th class="num">Jedn. cena</th><th class="num">Celkem</th></tr></thead><tbody>' +
+      b.items.map(i => '<tr><td>' + esc(i.name) + (i.note ? '<br><span style="font-weight:400;color:#6B6B6B;font-size:12.5px">' + esc(i.note) + '</span>' : '') + '</td><td class="num">' + fmt(i.qty) + ' ' + esc(i.unit) + '</td><td class="num">' + (Number.isInteger(i.price) ? kc(i.price) : fmt(i.price, 2) + ' Kč') + '</td><td class="num">' + kc(i.qty * i.price) + '</td></tr>').join('') +
+      '</tbody></table></div><div class="q-tot">' +
+      '<div><span>Mezisoučet</span><span>' + kc(sub) + '</span></div>' +
+      (disc ? '<div><span>Sleva ' + fmt(b.discountPct) + ' % na materiál</span><span>−' + kc(disc) + '</span></div>' : '') +
+      '<div><span>Základ DPH</span><span>' + kc(baseV) + '</span></div>' +
+      '<div><span>DPH ' + fmt(b.vat ?? 21) + ' %</span><span>' + kc(vat) + '</span></div>' +
+      '<div class="grand"><span>Celkem s DPH</span><span>' + kc(tot) + '</span></div></div>' +
+      '<div class="q-notes">Hmotnost materiálu ' + fmt(kg / 1000, 1) + ' t. ' + rich(b.notes || '') + '</div></div>';
+  },
+  emails(b, c) {
+    if (c) { const m = b.items[0]; return '<div class="mail"><div class="mail-meta"><span>' + esc(m.channel || 'E-mail') + '</span><b>' + esc(m.subject || m.label) + '</b></div><div class="mail-body">' + rich([].concat(m.body)[0]) + '</div></div>' + (b.items.length > 1 ? '<div class="tbl-note">+ ' + (b.items.length - 1) + ' další zprávy v sekvenci</div>' : ''); }
+    const id = 't' + (++uid);
+    return (b.items.length > 1 ? '<div class="tabs" role="tablist">' + b.items.map((m, i) => '<button type="button" role="tab" aria-selected="' + (i === 0) + '" data-tab="' + id + '" data-i="' + i + '">' + esc(m.label) + '</button>').join('') + '</div>' : '') +
+      b.items.map((m, i) => '<div class="mail" data-pane="' + id + '" data-i="' + i + '"' + (i ? ' hidden' : '') + '><div class="mail-meta">' +
+        (m.channel ? '<span>Kanál</span><b>' + esc(m.channel) + '</b>' : '') +
+        (m.from ? '<span>Od</span><b>' + esc(m.from) + '</b>' : '') +
+        (m.to ? '<span>Komu</span><b>' + esc(m.to) + '</b>' : '') +
+        (m.subject ? '<span>Předmět</span><b>' + esc(m.subject) + '</b>' : '') +
+        '</div><div class="mail-body">' + [].concat(m.body).map(p => '<p>' + rich(p) + '</p>').join('') + '</div></div>').join('');
+  },
+  chat(b, c) {
+    const msgs = c ? b.messages.slice(0, b.compact || 3) : b.messages;
+    return '<div class="chat"><div class="chat-head"><i>' + icon(b.icon || 'chat') + '</i><div><b>' + esc(b.channel) + '</b><span>' + esc(b.sub || '') + '</span></div></div><div class="chat-body">' +
+      msgs.map(m => '<div class="msg ' + (m.side || 'l') + '">' + (m.name ? '<span class="msg-n">' + esc(m.name) + '</span>' : '') + rich(m.text) + '<span class="msg-t">' + esc(m.t || '') + '</span></div>').join('') + '</div></div>';
+  },
+  checklist(b, c) {
+    const items = c && b.compact ? b.items.slice(0, b.compact) : b.items;
+    return '<ul class="check">' + items.map(i => { const s = typeof i === 'string' ? 'ok' : (i.s || 'ok'); const t = typeof i === 'string' ? i : i.t; return '<li class="' + s + '"><i>' + icon(s === 'warn' ? 'warn' : 'check') + '</i><span>' + rich(t) + '</span></li>'; }).join('') + '</ul>';
+  },
+  callout(b) { return '<div class="callout ' + (b.tone || '') + '">' + (b.label ? '<b>' + esc(b.label) + '</b>' : '') + '<p>' + rich(b.text) + '</p></div>'; },
+  split(b) {
+    return '<div class="split">' + [['', b.before], ['after', b.after]].map(([k, s]) => '<div class="' + k + '"><h5>' + esc(s.label) + '</h5>' + (s.head ? '<strong>' + esc(s.head) + '</strong>' : '') + [].concat(s.text || []).map(p => '<p>' + rich(p) + '</p>').join('') + '</div>').join('') + '</div>';
+  },
+  board(b, c) {
+    return '<div class="board">' + b.cols.map(col => '<div class="b-col"><h5><span>' + esc(col.t) + '</span><em>' + esc(col.n ?? col.items.length) + '</em></h5>' +
+      (c ? col.items.slice(0, 1) : col.items).map(i => '<div class="b-item ' + (i.tone || '') + '"><b>' + esc(i.t) + '</b><span>' + esc(i.m || '') + '</span></div>').join('') + '</div>').join('') + '</div>';
+  },
+  gantt(b, c) {
+    const [h0, h1] = b.hours, span = h1 - h0, tp = v => { const [h, m] = String(v).split(':').map(Number); return ((h + (m || 0) / 60) - h0) / span * 100; };
+    const ticks = []; for (let h = h0; h <= h1; h += (b.step || 2)) ticks.push(h);
+    return '<div class="gantt"><div class="g-hours"><div></div><div>' + ticks.map(h => '<span style="left:' + ((h - h0) / span * 100) + '%">' + h + ':00</span>').join('') + '</div></div>' +
+      b.rows.map(r => '<div class="g-row"><div class="g-l">' + esc(r.l) + (r.s ? '<small>' + esc(r.s) + '</small>' : '') + '</div><div class="g-track" style="--tick:' + (100 / span * (b.step || 2)) + '%">' +
+        r.blocks.map(k => { const l = tp(k.from), w = tp(k.to) - l; return '<div class="g-blk ' + (k.tone || '') + (k.pin ? ' pin' : '') + '" style="left:calc(' + l + '% + 2px);width:calc(' + w + '% - 4px)" title="' + esc(k.from + '–' + k.to + ' · ' + k.label) + '">' + esc(k.label) + '</div>'; }).join('') +
+      '</div></div>').join('') + '</div>' + (!c && b.note ? '<div class="tbl-note">' + rich(b.note) + '</div>' : '');
+  },
+  cuts(b, c) {
+    const orderKeys = Object.keys(b.orders);
+    const sc = (bars) => { let scrap = 0, rem = 0, used = 0; bars.forEach(p => { const u = p.reduce((a, x) => a + x[1], 0); const r = b.stock - u; used += u; r >= b.remnantMin ? rem += r : scrap += r; }); return { scrap, rem, used, pct: scrap / (used + scrap) * 100 }; };
+    const one = (label, bars) => {
+      const s = sc(bars);
+      return '<div><div class="cut-head"><b>' + esc(label) + '</b><span>Odpad <strong>' + fmt(s.scrap / 1000, 2) + ' m · ' + fmt(s.pct, 1) + ' %</strong> · zbytek do skladu ' + fmt(s.rem / 1000, 2) + ' m</span></div>' +
+        bars.map(p => { const u = p.reduce((a, x) => a + x[1], 0), r = b.stock - u; return '<div class="cut-bar">' + p.map(x => '<div class="cut-seg o' + (orderKeys.indexOf(x[0]) + 1) + '" style="width:' + (x[1] / b.stock * 100) + '%" title="' + esc(x[0] + ' · ' + fmt(x[1]) + ' mm') + '">' + fmt(x[1] / 1000, 2) + '</div>').join('') +
+          (r > 0 ? '<div class="cut-seg ' + (r >= b.remnantMin ? 'rem' : 'scrap') + '" style="width:' + (r / b.stock * 100) + '%" title="' + (r >= b.remnantMin ? 'Zbytek do skladu' : 'Odpad') + ' ' + fmt(r) + ' mm">' + (r >= b.remnantMin ? 'zbytek ' + fmt(r / 1000, 2) : (r > 600 ? fmt(r / 1000, 2) : '')) + '</div>' : '') + '</div>'; }).join('') + '</div>';
+    };
+    const leg = '<div class="cut-leg">' + orderKeys.map((k, i) => '<span><i class="cut-seg o' + (i + 1) + '" style="border:0"></i>' + esc(k) + ' · ' + esc(b.orders[k]) + '</span>').join('') + '<span><i style="background:#FA2B2B"></i>odpad</span><span><i style="background:repeating-linear-gradient(45deg,#EFEFEF 0 4px,#D0D0D0 4px 8px)"></i>zbytek nad ' + fmt(b.remnantMin / 1000, 0) + ' m → sklad</span></div>';
+    return '<div class="cuts">' + (c ? '' : one(b.beforeLabel, b.before)) + one(b.afterLabel, b.after) + leg + '</div>';
+  },
+  weightcalc(b, c) {
+    if (c) return '<div class="callout grey"><b>Interaktivní kalkulačka</b><p>' + b.items.length + ' profilů, délka, počet kusů, hmotnost a orientační cena. Otevřete a vyzkoušejte.</p></div>';
+    const id = 'w' + (++uid);
+    return '<div class="wcalc" data-wcalc="' + id + '"><div class="wcalc-grid">' +
+      '<label>Materiál<select id="wc-material" data-w="p">' + b.items.map((i, k) => '<option value="' + k + '">' + esc(i.name) + '</option>').join('') + '</select></label>' +
+      '<label>Délka (m)<input id="wc-delka" data-w="l" type="number" min="0.1" step="0.1" value="6" inputmode="decimal"></label>' +
+      '<label>Kusů<input id="wc-kusy" data-w="q" type="number" min="1" step="1" value="10" inputmode="numeric"></label></div>' +
+      '<div class="wcalc-out"><div><b data-o="kg">–</b><span>hmotnost celkem</span></div><div><b data-o="pm">–</b><span>kg na metr</span></div><div><b data-o="pr">–</b><span>orientační cena bez DPH</span></div></div>' +
+      '<div class="wcalc-note">' + esc(b.note) + '</div></div>';
+  },
+  spark(b) {
+    const W = 560, H = 150, p = 8, v = b.series, mn = Math.min(...v), mx = Math.max(...v), rng = (mx - mn) || 1;
+    const px = i => p + i * (W - 2 * p) / (v.length - 1), py = y => p + 12 + (H - 2 * p - 24) * (1 - (y - mn) / rng);
+    const pts = v.map((y, i) => px(i).toFixed(1) + ',' + py(y).toFixed(1)).join(' ');
+    return '<div class="spark"><div class="spark-top"><b>' + esc(b.label) + '</b><span>' + rich(b.sub || '') + '</span></div><svg viewBox="0 0 ' + W + ' ' + H + '" aria-hidden="true">' +
+      '<polygon points="' + p + ',' + (H - p) + ' ' + pts + ' ' + (W - p) + ',' + (H - p) + '" fill="#FFE1E1" opacity=".7"/>' +
+      '<polyline points="' + pts + '" fill="none" stroke="#FA2B2B" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<circle cx="' + px(v.length - 1) + '" cy="' + py(v[v.length - 1]) + '" r="5" fill="#fff" stroke="#FA2B2B" stroke-width="3"/>' +
+      '<text x="' + p + '" y="' + (H - 1) + '" font-size="11" fill="#6B6B6B" font-family="Archivo,Arial">' + esc(b.from || '') + '</text>' +
+      '<text x="' + (W - p) + '" y="' + (H - 1) + '" font-size="11" fill="#6B6B6B" text-anchor="end" font-family="Archivo,Arial">' + esc(b.to || '') + '</text></svg></div>';
+  },
+  browser(b, c) {
+    return '<div class="browser"><div class="br-bar"><i></i><i></i><i></i><span class="br-url">' + esc(b.url) + '</span></div><div class="br-in"><nav class="br-nav"><span class="br-logo">' + esc(b.brand) + '</span>' +
+      b.nav.map((n, i) => '<span' + (i === (b.active || 0) ? ' class="on"' : '') + '>' + esc(n) + '</span>').join('') + '</nav><div class="br-main">' + (b.heading ? '<h4>' + esc(b.heading) + '</h4>' : '') + blocks(b.blocks, c) + '</div></div></div>';
+  },
+  phone(b, c) {
+    return '<div class="phone"><div class="ph-top">' + esc(b.top) + '<b>' + esc(b.heading) + '</b></div><div class="ph-in">' + blocks(b.blocks, c) + '</div></div>';
+  }
+};
+function initWidgets(root, card) {
+  $$('[data-wcalc]', root).forEach(w => {
+    const blk = card.output.find(b => b.type === 'weightcalc');
+    const upd = () => {
+      const it = blk.items[+$('[data-w="p"]', w).value];
+      const l = Math.max(0, parseFloat(String($('[data-w="l"]', w).value).replace(',', '.')) || 0);
+      const q = Math.max(0, parseInt($('[data-w="q"]', w).value, 10) || 0);
+      const kg = it.kgPerM * l * q;
+      $('[data-o="kg"]', w).textContent = fmt(kg, 1) + ' kg';
+      $('[data-o="pm"]', w).textContent = fmt(it.kgPerM, 2);
+      $('[data-o="pr"]', w).textContent = kc(kg * it.pricePerKg);
+    };
+    w.addEventListener('input', upd); w.addEventListener('change', upd); upd();
+  });
+}
+
+/* ============ Modal karty ============ */
+let curCard = null, lastFocus = null;
+function openCard(id) {
+  const hit = cardIndex.get(id); if (!hit) return;
+  const { card: c, week: w } = hit, ag = C.agents[w.agent];
+  curCard = id;
+  if ($('#modal').hidden) lastFocus = document.activeElement;
+  $('#mHead').innerHTML = '<div class="card-meta"><span class="card-id">' + esc(c.id) + '</span>' + esc(wkLabel(w.n)) + ' · ' + esc(w.short) + ' · ' + esc(ag.name) + '</div>' +
+    '<h2 class="m-title" id="mTitle">' + esc(c.title) + '</h2><p class="m-desc">' + rich(c.desc) + '</p>' +
+    '<div class="prompt" style="max-width:820px;background:#fff"><span class="prompt-lbl">PROMPT</span><span>' + esc(c.prompt) + '</span></div>' +
+    '<div class="booster">' + esc(c.booster?.type || w.booster) + ' · ' + (c.booster?.skill || '').split('+').map(s => '<code>' + esc(s.trim()) + '</code>').join(' + ') + '</div>';
+  $('#mBody').innerHTML = blocks(c.output, false);
+  initWidgets($('#mBody'), c);
+  const i = cardOrder.indexOf(id), p = cardOrder[i - 1], n = cardOrder[i + 1];
+  const pb = $('#mPrev'), nb = $('#mNext');
+  pb.disabled = !p; nb.disabled = !n;
+  if (p) { pb.innerHTML = icon('arrowL') + '<span>' + esc(p + ' · ' + cardIndex.get(p).card.title) + '</span>'; pb.onclick = () => openCard(p); }
+  if (n) { nb.innerHTML = '<span>' + esc(n + ' · ' + cardIndex.get(n).card.title) + '</span>' + icon('arrowR'); nb.onclick = () => openCard(n); }
+  $('#modal').hidden = false;
+  $('#mScroll').scrollTop = 0;
+  try { history.replaceState(null, '', '#k-' + id); } catch (e) {}
+  $('.m-close', $('#modal')).focus({ preventScroll: true });
+}
+function closeCard() {
+  if ($('#modal').hidden) return;
+  $('#modal').hidden = true;
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+  const el = curCard && $('[data-card="' + CSS.escape(curCard) + '"] .card-open');
+  (el || lastFocus)?.focus?.({ preventScroll: true });
+  curCard = null;
+}
+
+/* ============ Nápověda (plovoucí karta, nic nezakrývá) ============ */
+function openGuide() {
+  $('#guideIn').innerHTML = '<div class="kicker">' + esc(C.vendor.name) + ' AI tým · demo</div>' +
+    '<h2 id="gTitle">Jak se pohybovat po mapě</h2><p>' + esc(C.guideText) + '</p>' +
+    '<ul class="g-list">' +
+      '<li><i>' + icon('move') + '</i><div><b>Táhněte myší</b> = posun<span>touchpad: táhněte dvěma prsty</span></div></li>' +
+      '<li><i>' + icon('zoom') + '</i><div><b>Kolečko myši</b> = přiblížit a oddálit<span>touchpad: roztáhněte nebo sevřete dva prsty</span></div></li>' +
+      '<li><i>' + icon('pointer') + '</i><div><b>Klik na kartu</b> = hotový výstup<span>šipkami ← → listujete mezi výstupy</span></div></li>' +
+    '</ul><button class="btn btn-red" type="button" data-gclose>Rozumím' + icon('check') + '</button>';
+  $('#guide').hidden = false;
+}
+function closeGuide() { $('#guide').hidden = true; store.set('guide', '1'); }
+// první návštěva: zvýrazněný řádek s ovládáním dole, dokud uživatel poprvé nezasáhne
+function hintIntro() {
+  const h = $('#hint');
+  if (store.get('guide') || h.dataset.done) return;
+  h.classList.add('hi');
+  const off = () => { h.classList.remove('hi'); h.dataset.done = '1'; store.set('guide', '1'); ['pointerdown', 'wheel', 'keydown'].forEach(t => window.removeEventListener(t, off, true)); };
+  ['pointerdown', 'wheel', 'keydown'].forEach(t => window.addEventListener(t, off, { capture: true, passive: true }));
+  setTimeout(off, 12000);
+}
+
+/* ============ Kontakt ============ */
+let lastFocusCt = null;
+function openContact() {
+  const V = C.vendor, K = V.contact || {};
+  lastFocusCt = document.activeElement;
+  const row = (k, v, id, copy) => '<div class="ct-row"><span class="ct-k">' + esc(k) + '</span><span class="ct-v" id="' + id + '">' + v + '</span>' +
+    (copy ? '<button class="ct-copy" type="button" data-copy="' + id + '">Kopírovat</button>' : '<span></span>') + '</div>';
+  $('#ctIn').innerHTML = '<div class="kicker">' + esc(V.name) + '</div>' +
+    '<h2 class="ct-title" id="ctTitle">' + esc(V.cta.modalTitle || V.cta.button) + '</h2>' +
+    '<p class="ct-text">' + esc(V.cta.modalText || V.cta.text) + '</p>' +
+    '<div class="ct-rows">' +
+      (K.name ? row('Kontakt', esc(K.name) + (K.role ? '<br><span style="font-weight:500;font-size:14px;color:var(--muted)">' + esc(K.role) + '</span>' : ''), 'ct-name', false) : '') +
+      (K.email ? row('E-mail', esc(K.email), 'ct-email', true) : '') +
+      (K.phone ? row('Telefon', esc(K.phone), 'ct-phone', true) : '') +
+      (K.web ? row('Web', '<a href="' + esc(K.web) + '" target="_blank" rel="noopener">' + esc(K.webLabel || K.web) + '</a>', 'ct-web', false) : '') +
+    '</div>' +
+    (K.email ? '<div class="ct-actions"><a class="btn btn-red" href="mailto:' + esc(K.email) + '?subject=' + encodeURIComponent(K.subject || 'AI Roadmapa') + '">Napsat e-mail' + icon('arrowR') + '</a><span class="ct-note">Tlačítko otevře vaši poštu, pokud to prohlížeč dovolí. Jinak adresu výše zkopírujte.</span></div>' : '') +
+    (K.address ? '<div class="ct-addr">' + esc(K.address) + '</div>' : '');
+  $('#contact').hidden = false;
+  $('.m-close', $('#contact')).focus({ preventScroll: true });
+}
+function closeContact() {
+  if ($('#contact').hidden) return;
+  $('#contact').hidden = true;
+  lastFocusCt?.focus?.({ preventScroll: true });
+}
+function copyText(btn) {
+  const el = document.getElementById(btn.dataset.copy); if (!el) return;
+  const done = () => { btn.textContent = 'Zkopírováno'; setTimeout(() => { btn.textContent = 'Kopírovat'; }, 1800); };
+  const select = () => { const r = document.createRange(); r.selectNodeContents(el); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); btn.textContent = 'Označeno, stiskněte Ctrl+C'; };
+  try { navigator.clipboard.writeText(el.textContent.trim()).then(done, select); } catch (e) { select(); }
+}
+
+/* ============ Menu ============ */
+function renderMenu() {
+  const secs = [['a', 'A', 'Úvod', 'Kde firma dnes ztrácí'], ['b', 'B', 'Kalkulačka', 'Dopad na zisk'], ['c', 'C', 'Co bude hotové', 'Výstupy po oblastech'], ['d', 'D', 'Co potřebujete', 'Program, nástroje, podpora']];
+  $('#drBody').innerHTML = '<div class="dr-sec">Mapa</div>' +
+    secs.map(s => '<button class="dr-item" type="button" data-go="' + s[0] + '"><span class="n">' + s[1] + '</span><span><b>' + s[2] + '</b><span>' + s[3] + '</span></span></button>').join('') +
+    '<div class="dr-sec" data-dyn="Program · {dur}">Program · ' + esc(durLabel(totalWeeks)) + '</div>' +
+    C.weeks.map(w => '<button class="dr-item" type="button" data-go="w' + w.n + '"><span class="n" data-wk="' + w.n + '" data-wkf="big">' + esc(wkLabel(w.n, 'big')) + '</span><span><b>' + esc(w.title) + '</b><span>' + esc(C.agents[w.agent].name) + '</span></span></button>').join('');
+}
+function openMenu(open) {
+  $('#drawer').hidden = !open; $('#scrim').hidden = !open;
+  $('#menuBtn').setAttribute('aria-expanded', String(open));
+  if (open) $('#drClose').focus(); else $('#menuBtn').focus({ preventScroll: true });
+}
+
+/* ============ Režim mapa / stránka ============ */
+function setMode() {
+  const lin = linearForced === null ? mqNarrow.matches : linearForced;
+  document.body.classList.toggle('linear', lin);
+  $('#modeBtn').textContent = lin ? 'Zobrazit jako mapu' : 'Číst jako stránku';
+  $('#modeBtn').hidden = mqNarrow.matches;
+  world.style.transform = '';
+  if (!lin) {
+    requestAnimationFrame(() => { computeMin(); go(startKey(), false); });
+    hintIntro();
+  } else $('#guide').hidden = true;
+}
+
+/* ============ Pan & zoom ============ */
+function apply() {
+  world.style.transform = 'translate(' + st.x + 'px,' + st.y + 'px) scale(' + st.s + ')';
+  const g = 28 * st.s; vp.style.backgroundSize = g + 'px ' + g + 'px'; vp.style.backgroundPosition = st.x + 'px ' + st.y + 'px';
+  $('#zpct').textContent = Math.round(st.s * 100) + '%';
+}
+function touch() { world.classList.add('anim'); clearTimeout(idleT); idleT = setTimeout(() => world.classList.remove('anim'), 180); }
+function worldRect(el) {
+  const wr = world.getBoundingClientRect(), er = el.getBoundingClientRect();
+  return { x: (er.left - wr.left) / st.s, y: (er.top - wr.top) / st.s, w: er.width / st.s, h: er.height / st.s };
+}
+function topInset() { return window.innerWidth <= 820 ? 70 : 80; }
+function fitView(r, pad = 36, maxS = 1.1) {
+  const vw = vp.clientWidth, top = topInset(), vh = vp.clientHeight - top;
+  const s = clamp(Math.min((vw - pad * 2) / r.w, (vh - pad * 2) / r.h), MIN, maxS);
+  return { s, x: (vw - r.w * s) / 2 - r.x * s, y: top + (vh - r.h * s) / 2 - r.y * s };
+}
+function topView(r, pad = 40) {
+  const vw = vp.clientWidth, top = topInset();
+  const s = clamp((vw - pad * 2) / r.w, MIN, 1);
+  return { s, x: (vw - r.w * s) / 2 - r.x * s, y: top + 16 - r.y * s };
+}
+function computeMin() {
+  const saved = { ...st }; st.s = 1; st.x = 0; st.y = 0; apply();
+  const r = { x: 0, y: 0, w: world.offsetWidth, h: world.offsetHeight };
+  const f = fitView(r, 30, 1); MIN = f.s * 0.8;
+  Object.assign(st, saved); apply();
+}
+function animateTo(t, dur = 750) {
+  cancelAnimationFrame(animId);
+  if (reduced) { Object.assign(st, t); apply(); touch(); return; }
+  const f = { ...st }, t0 = performance.now(), ease = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+  const step = now => {
+    const p = Math.min(1, (now - t0) / dur), e = ease(p);
+    st.s = Math.exp(Math.log(f.s) + (Math.log(t.s) - Math.log(f.s)) * e);
+    st.x = f.x + (t.x - f.x) * e; st.y = f.y + (t.y - f.y) * e;
+    apply(); world.classList.add('anim');
+    if (p < 1) animId = requestAnimationFrame(step); else touch();
+  };
+  animId = requestAnimationFrame(step);
+}
+function go(key, animate = true) {
+  let el, mode = 'fit';
+  if (/^w\d+$/.test(key)) { el = $('#week-' + key.slice(1)); mode = 'top'; }
+  else if (key === 'all') el = world;
+  else el = $('#sec-' + key);
+  if (!el) return;
+  if (isLinear()) { el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' }); return; }
+  const r = key === 'all' ? { x: 0, y: 0, w: world.offsetWidth, h: world.offsetHeight } : worldRect(el);
+  const t = mode === 'top' ? topView(r) : fitView(r, key === 'all' ? 24 : 36);
+  animate ? animateTo(t) : (Object.assign(st, t), apply());
+}
+function zoomAt(f, cx, cy) {
+  const ns = clamp(st.s * f, MIN, MAX), k = ns / st.s;
+  st.x = cx - (cx - st.x) * k; st.y = cy - (cy - st.y) * k; st.s = ns; apply(); touch();
+}
+
+function bindGlobal() {
+  // Klik: karty, odkazy na sekce
+  document.addEventListener('click', e => {
+    const md = e.target.closest('[data-mod]');
+    if (md) { const n = +md.dataset.mod; setModule(n, !modState[n]); return; }
+    const cta = e.target.closest('[data-cta]');
+    if (cta) { openMenu(false); closeCard(); openContact(); return; }
+    const cp = e.target.closest('[data-copy]');
+    if (cp) { copyText(cp); return; }
+    if (e.target.closest('[data-cclose]')) { closeContact(); return; }
+    const go1 = e.target.closest('[data-go]');
+    if (go1) { e.preventDefault(); openMenu(false); closeCard(); go(go1.dataset.go); return; }
+    const op = e.target.closest('[data-open]');
+    if (op) { openCard(op.dataset.open); return; }
+    const card = e.target.closest('[data-card]');
+    if (card && world.contains(card)) { openCard(card.dataset.card); return; }
+    const tab = e.target.closest('[data-tab]');
+    if (tab) {
+      const g = tab.dataset.tab, i = tab.dataset.i;
+      $$('[data-tab="' + g + '"]').forEach(b => b.setAttribute('aria-selected', String(b === tab)));
+      $$('[data-pane="' + g + '"]').forEach(p => p.hidden = p.dataset.i !== i);
+    }
+    if (e.target.closest('[data-close]')) closeCard();
+    if (e.target.closest('[data-gclose]')) closeGuide();
+  });
+  $('#menuBtn').addEventListener('click', () => openMenu($('#drawer').hidden));
+  $('#drClose').addEventListener('click', () => openMenu(false));
+  $('#scrim').addEventListener('click', () => openMenu(false));
+  $('#modeBtn').addEventListener('click', () => { linearForced = !isLinear(); openMenu(false); setMode(); window.scrollTo(0, 0); });
+  $('#zoomctl').addEventListener('click', e => {
+    const b = e.target.closest('[data-z]'); if (!b) return;
+    const z = b.dataset.z, cx = vp.clientWidth / 2, cy = vp.clientHeight / 2;
+    if (z === 'in') zoomAt(1.3, cx, cy); else if (z === 'out') zoomAt(1 / 1.3, cx, cy);
+    else if (z === 'fit') go('all'); else if (z === 'page') { linearForced = true; setMode(); window.scrollTo(0, 0); }
+    else if (z === 'help') { $('#guide').hidden ? openGuide() : closeGuide(); }
+  });
+  mqNarrow.addEventListener('change', () => { linearForced = modeParam; setMode(); });
+  window.addEventListener('resize', () => { if (!isLinear()) computeMin(); });
+
+  // Klávesnice
+  document.addEventListener('keydown', e => {
+    const tag = (e.target.tagName || '').toLowerCase();
+    interacted = true;
+    if (!$('#contact').hidden) {
+      if (e.key === 'Escape') closeContact(); else if (e.key === 'Tab') trapFocus(e, $('#contact .m-panel'));
+      return;
+    }
+    if (!$('#modal').hidden) {
+      if (e.key === 'Escape') closeCard();
+      else if (tag !== 'input' && tag !== 'select') {
+        if (e.key === 'ArrowRight') { const n = cardOrder[cardOrder.indexOf(curCard) + 1]; if (n) openCard(n); }
+        if (e.key === 'ArrowLeft') { const p = cardOrder[cardOrder.indexOf(curCard) - 1]; if (p) openCard(p); }
+        if (e.key === 'Tab') trapFocus(e, $('#modal .m-panel'));
+      }
+      return;
+    }
+    if (!$('#drawer').hidden) { if (e.key === 'Escape') openMenu(false); return; }
+    if (!$('#guide').hidden && e.key === 'Escape') { closeGuide(); return; }
+    if (tag === 'input' || tag === 'select' || tag === 'textarea' || e.ctrlKey || e.metaKey || e.altKey) return;
+    const k = e.key.toLowerCase();
+    if (k === 'n') { $('#guide').hidden ? openGuide() : closeGuide(); return; }
+    if (isLinear()) return;
+    const cx = vp.clientWidth / 2, cy = vp.clientHeight / 2;
+    if (k === 'f') go('all');
+    else if (k === '+' || k === '=') zoomAt(1.3, cx, cy);
+    else if (k === '-' || k === '_') zoomAt(1 / 1.3, cx, cy);
+    else if (['a', 'b', 'c', 'd'].includes(k)) go(k);
+    else if (/^[1-9]$/.test(k) && $('#week-' + k)) go('w' + k);
+    else if (k.startsWith('arrow')) {
+      e.preventDefault(); const d = 140;
+      if (k === 'arrowleft') st.x += d; if (k === 'arrowright') st.x -= d; if (k === 'arrowup') st.y += d; if (k === 'arrowdown') st.y -= d;
+      apply(); touch();
+    }
+  });
+
+  // Myš, dotyk, touchpad
+  const pts = new Map(); let drag = null, pinch = null, suppress = false;
+  vp.addEventListener('pointerdown', e => {
+    if (isLinear()) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (e.target.closest('input,select,textarea,summary,.no-pan')) return;
+    cancelAnimationFrame(animId); interacted = true;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pts.size === 1) drag = { id: e.pointerId, sx: e.clientX, sy: e.clientY, ox: st.x, oy: st.y, moved: false };
+    if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, s: st.s, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, ox: st.x, oy: st.y }; if (drag) drag.moved = true; }
+  });
+  window.addEventListener('pointermove', e => {
+    if (!pts.has(e.pointerId)) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pinch && pts.size >= 2) {
+      const [a, b] = [...pts.values()], d = Math.hypot(a.x - b.x, a.y - b.y), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      const ns = clamp(pinch.s * d / pinch.d, MIN, MAX), k = ns / pinch.s;
+      st.s = ns; st.x = mx - (pinch.mx - pinch.ox) * k; st.y = my - (pinch.my - pinch.oy) * k; apply(); touch(); return;
+    }
+    if (drag && e.pointerId === drag.id) {
+      const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+      if (!drag.moved && Math.hypot(dx, dy) > 5) { drag.moved = true; vp.classList.add('dragging'); try { vp.setPointerCapture(e.pointerId); } catch (_) {} }
+      if (drag.moved) { st.x = drag.ox + dx; st.y = drag.oy + dy; apply(); touch(); }
+    }
+  });
+  const end = e => {
+    if (!pts.has(e.pointerId)) return;
+    pts.delete(e.pointerId);
+    if (drag && drag.moved) { suppress = true; setTimeout(() => { suppress = false; }, 0); }
+    if (pts.size < 2) pinch = null;
+    if (pts.size === 1) { const [id, p] = [...pts.entries()][0]; drag = { id, sx: p.x, sy: p.y, ox: st.x, oy: st.y, moved: true }; }
+    if (pts.size === 0) { drag = null; vp.classList.remove('dragging'); }
+  };
+  window.addEventListener('pointerup', end); window.addEventListener('pointercancel', end);
+  window.addEventListener('click', e => { if (suppress) { e.stopPropagation(); e.preventDefault(); suppress = false; } }, true);
+  vp.addEventListener('wheel', e => {
+    if (isLinear()) return;
+    e.preventDefault(); cancelAnimationFrame(animId);
+    let dx = e.deltaX, dy = e.deltaY;
+    if (e.deltaMode === 1) { dx *= 16; dy *= 16; } else if (e.deltaMode === 2) { dx *= 400; dy *= 400; }
+    interacted = true;
+    // touchpad (malé plynulé delty nebo vodorovný pohyb) = posun, kolečko myši = zoom, Shift+kolečko = vodorovný posun
+    if (e.shiftKey && !e.ctrlKey) { st.x -= (dx || dy); apply(); touch(); return; }
+    const isPan = !e.ctrlKey && (Math.abs(dx) > 0 || (e.deltaMode === 0 && Math.abs(dy) < 40));
+    if (isPan) { st.x -= dx; st.y -= dy; apply(); touch(); return; }
+    const r = vp.getBoundingClientRect();
+    zoomAt(Math.exp(-dy * (e.ctrlKey ? 0.012 : 0.0016)), e.clientX - r.left, e.clientY - r.top);
+  }, { passive: false });
+  vp.addEventListener('dblclick', e => {
+    if (isLinear() || e.target.closest('.card,button,a,input,.area')) return;
+    const r = vp.getBoundingClientRect(); zoomAt(1.6, e.clientX - r.left, e.clientY - r.top);
+  });
+}
+function trapFocus(e, root) {
+  const f = $$('button:not([disabled]),a[href],input,select,[tabindex]:not([tabindex="-1"])', root).filter(x => x.offsetParent !== null);
+  if (!f.length) return;
+  const first = f[0], last = f[f.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+}
+})();
+</script>
+</body>
+</html>
